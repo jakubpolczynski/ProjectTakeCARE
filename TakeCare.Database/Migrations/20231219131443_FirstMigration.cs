@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TakeCare.Database.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class FirstMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -27,7 +27,7 @@ namespace TakeCare.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "User",
+                name: "UserTable",
                 columns: table => new
                 {
                     User_id = table.Column<int>(type: "int", nullable: false)
@@ -38,7 +38,7 @@ namespace TakeCare.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_User", x => x.User_id);
+                    table.PrimaryKey("PK_UserTable", x => x.User_id);
                 });
 
             migrationBuilder.CreateTable(
@@ -58,11 +58,11 @@ namespace TakeCare.Database.Migrations
                 {
                     table.PrimaryKey("PK_DoctorTable", x => x.Doctor_id);
                     table.ForeignKey(
-                        name: "FK_DoctorTable_User_User_id",
+                        name: "FK_DoctorTable_UserTable_User_id",
                         column: x => x.User_id,
-                        principalTable: "User",
+                        principalTable: "UserTable",
                         principalColumn: "User_id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -87,13 +87,13 @@ namespace TakeCare.Database.Migrations
                         column: x => x.Address_id,
                         principalTable: "AddressTable",
                         principalColumn: "Address_id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_PatientTable_User_UserId",
+                        name: "FK_PatientTable_UserTable_UserId",
                         column: x => x.UserId,
-                        principalTable: "User",
+                        principalTable: "UserTable",
                         principalColumn: "User_id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -118,7 +118,7 @@ namespace TakeCare.Database.Migrations
                         column: x => x.Doctor_id,
                         principalTable: "DoctorTable",
                         principalColumn: "Doctor_id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ExaminationTable_PatientTable_Patient_id",
                         column: x => x.Patient_id,
@@ -152,7 +152,7 @@ namespace TakeCare.Database.Migrations
                         column: x => x.Patient_id,
                         principalTable: "PatientTable",
                         principalColumn: "Patient_id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -210,7 +210,7 @@ namespace TakeCare.Database.Migrations
                 name: "AddressTable");
 
             migrationBuilder.DropTable(
-                name: "User");
+                name: "UserTable");
         }
     }
 }

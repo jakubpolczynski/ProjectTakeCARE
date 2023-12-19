@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClassLibrary1\TakeCare.Database.csproj" />
+    <ProjectReference Include="..\TakeCare.Database\TakeCare.Database.csproj" />
   </ItemGroup>
 
 </Project>

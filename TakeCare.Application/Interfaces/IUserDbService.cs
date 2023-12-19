@@ -4,6 +4,6 @@ namespace TakeCare.Application.Interfaces
 {
     public interface IUserDbService
     {
-       void AddUserAsync(User user);
+       Task AddUserAsync(User user);
     }
 }
