@@ -1,6 +1,4 @@
-﻿using Couchbase.Query;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using TakeCare.Application.Interfaces;
 using TakeCare.Database.Entity;
 
@@ -17,7 +15,7 @@ namespace TakeCare.Controllers
             _userService = userService;
         }
         [HttpPost]
-        public IActionResult AddUser(User user)
+        public async Task<IActionResult> AddUser(User user)
         {
             if (!ModelState.IsValid)
             {
@@ -28,7 +26,7 @@ namespace TakeCare.Controllers
                 return BadRequest();
             }
 
-            _userService.AddUserAsync(user);
+            await _userService.AddUserAsync(user);
             return Ok();
         }
     }

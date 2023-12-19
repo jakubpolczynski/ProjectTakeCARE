@@ -8,9 +8,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TakeCare", "TakeCare\TakeCa
 		{087C44F9-4A7E-4BEA-821E-D76185016B07} = {087C44F9-4A7E-4BEA-821E-D76185016B07}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TakeCare.Application", "TakeCare.Application\TakeCare.Application.csproj", "{087C44F9-4A7E-4BEA-821E-D76185016B07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TakeCare.Application", "TakeCare.Application\TakeCare.Application.csproj", "{087C44F9-4A7E-4BEA-821E-D76185016B07}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TakeCare.Database", "ClassLibrary1\TakeCare.Database.csproj", "{58A407FD-4E7E-4D4A-8B84-B1B33684F818}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TakeCare.Database", "TakeCare.Database\TakeCare.Database.csproj", "{98CCD869-A525-4F1B-B253-753A044E0B87}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,10 +26,10 @@ Global
 		{087C44F9-4A7E-4BEA-821E-D76185016B07}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{087C44F9-4A7E-4BEA-821E-D76185016B07}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{087C44F9-4A7E-4BEA-821E-D76185016B07}.Release|Any CPU.Build.0 = Release|Any CPU
-		{58A407FD-4E7E-4D4A-8B84-B1B33684F818}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{58A407FD-4E7E-4D4A-8B84-B1B33684F818}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{58A407FD-4E7E-4D4A-8B84-B1B33684F818}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{58A407FD-4E7E-4D4A-8B84-B1B33684F818}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98CCD869-A525-4F1B-B253-753A044E0B87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98CCD869-A525-4F1B-B253-753A044E0B87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98CCD869-A525-4F1B-B253-753A044E0B87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98CCD869-A525-4F1B-B253-753A044E0B87}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

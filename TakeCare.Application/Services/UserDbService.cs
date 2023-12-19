@@ -11,11 +11,10 @@ namespace TakeCare.Application.Services
 
         public UserDbService(TakeCareDBContext context)
         {
-            if (context == null) throw new InvalidArgumentException("context");
-            _context = context;
+			_context = context ?? throw new InvalidArgumentException("context");
         }
 
-        public async void AddUserAsync(User user)
+        public async Task AddUserAsync(User user)
         {
             if (user == null) throw new InvalidArgumentException("user");
             await _context.UserTable.AddAsync(user);

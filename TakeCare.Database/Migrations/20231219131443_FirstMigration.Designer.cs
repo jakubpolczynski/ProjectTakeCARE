@@ -12,8 +12,8 @@ using TakeCare.Database.Data;
 namespace TakeCare.Database.Migrations
 {
     [DbContext(typeof(TakeCareDBContext))]
-    [Migration("20230827183355_fix")]
-    partial class fix
+    [Migration("20231219131443_FirstMigration")]
+    partial class FirstMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

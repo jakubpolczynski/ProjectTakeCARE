@@ -1,3 +1,4 @@
+using FluentAssertions.Common;
 using Microsoft.EntityFrameworkCore;
 using ServiceStack.Text;
 using TakeCare.Application.Interfaces;
@@ -27,17 +28,11 @@ builder.Services.AddCors(options =>
     );
 });
 
-var env = builder.Services.BuildServiceProvider().GetRequiredService<IWebHostEnvironment>();
-var connectionString = "";
+var connectionString = builder.Configuration.GetConnectionString("defaultConnection");
 
-if (env.IsDevelopment())
-{ 
-    connectionString = builder.Configuration.GetConnectionString("defaultConnection");
-}
 builder.Services.AddDbContext<TakeCareDBContext>(options =>
-    options.UseSqlServer(connectionString),
-    ServiceLifetime.Scoped
-);
+	options.UseSqlServer(connectionString),
+	ServiceLifetime.Scoped);
 
 builder.Services.AddScoped<IUserDbService, UserDbService>();
 
