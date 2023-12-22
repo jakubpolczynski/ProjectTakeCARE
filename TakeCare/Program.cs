@@ -1,6 +1,4 @@
-using FluentAssertions.Common;
 using Microsoft.EntityFrameworkCore;
-using ServiceStack.Text;
 using TakeCare.Application.Interfaces;
 using TakeCare.Application.Services;
 using TakeCare.Database.Data;
@@ -34,7 +32,7 @@ builder.Services.AddDbContext<TakeCareDBContext>(options =>
 	options.UseSqlServer(connectionString),
 	ServiceLifetime.Scoped);
 
-builder.Services.AddScoped<IUserDbService, UserDbService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 

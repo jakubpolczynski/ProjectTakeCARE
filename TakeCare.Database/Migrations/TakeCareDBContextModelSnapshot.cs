@@ -24,147 +24,147 @@ namespace TakeCare.Database.Migrations
 
             modelBuilder.Entity("TakeCare.Database.Entity.Address", b =>
                 {
-                    b.Property<int>("Address_id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Address_id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Address_city")
+                    b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Address_postal_code")
+                    b.Property<string>("PostalCode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Address_street")
+                    b.Property<string>("Street")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Address_id");
+                    b.HasKey("Id");
 
                     b.ToTable("AddressTable");
                 });
 
             modelBuilder.Entity("TakeCare.Database.Entity.Doctor", b =>
                 {
-                    b.Property<int>("Doctor_id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Doctor_id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Doctor_email")
+                    b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Doctor_first_name")
+                    b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Doctor_last_name")
+                    b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Doctor_phone")
+                    b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Doctor_title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("User_id")
-                        .HasColumnType("int");
-
-                    b.HasKey("Doctor_id");
-
-                    b.HasIndex("User_id");
-
-                    b.ToTable("DoctorTable");
-                });
-
-            modelBuilder.Entity("TakeCare.Database.Entity.Examination", b =>
-                {
-                    b.Property<int>("Examination_id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Examination_id"));
-
-                    b.Property<int>("Doctor_id")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("Examination_date")
-                        .IsRequired()
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Examination_description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Examination_name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Examination_result")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Examination_type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Patient_id")
-                        .HasColumnType("int");
-
-                    b.HasKey("Examination_id");
-
-                    b.HasIndex("Doctor_id");
-
-                    b.HasIndex("Patient_id");
-
-                    b.ToTable("ExaminationTable");
-                });
-
-            modelBuilder.Entity("TakeCare.Database.Entity.Patient", b =>
-                {
-                    b.Property<int>("Patient_id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Patient_id"));
-
-                    b.Property<int>("Address_id")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Patient_email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Patient_first_name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Patient_last_name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Patient_pesel")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Patient_phone")
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("Patient_id");
+                    b.HasKey("Id");
 
-                    b.HasIndex("Address_id");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DoctorTable");
+                });
+
+            modelBuilder.Entity("TakeCare.Database.Entity.Examination", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("Date")
+                        .IsRequired()
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DoctorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Result")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoctorId");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("ExaminationTable");
+                });
+
+            modelBuilder.Entity("TakeCare.Database.Entity.Patient", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AddressId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Pesel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
 
                     b.HasIndex("UserId");
 
@@ -173,55 +173,55 @@ namespace TakeCare.Database.Migrations
 
             modelBuilder.Entity("TakeCare.Database.Entity.User", b =>
                 {
-                    b.Property<int>("User_id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("User_id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("User_Role")
+                    b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("User_email")
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("User_password")
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("User_id");
+                    b.HasKey("Id");
 
                     b.ToTable("UserTable");
                 });
 
             modelBuilder.Entity("TakeCare.Database.Entity.Visit", b =>
                 {
-                    b.Property<int>("Visit_id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Visit_id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Doctor_id")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Patient_id")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Visit_date")
+                    b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Visit_description")
+                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Visit_id");
+                    b.Property<int>("DoctorId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("Doctor_id");
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("Patient_id");
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoctorId");
+
+                    b.HasIndex("PatientId");
 
                     b.ToTable("VisitTable");
                 });
@@ -230,7 +230,7 @@ namespace TakeCare.Database.Migrations
                 {
                     b.HasOne("TakeCare.Database.Entity.User", "User")
                         .WithMany()
-                        .HasForeignKey("User_id")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -241,13 +241,13 @@ namespace TakeCare.Database.Migrations
                 {
                     b.HasOne("TakeCare.Database.Entity.Doctor", "Doctor")
                         .WithMany()
-                        .HasForeignKey("Doctor_id")
+                        .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TakeCare.Database.Entity.Patient", "Patient")
                         .WithMany()
-                        .HasForeignKey("Patient_id")
+                        .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -260,7 +260,7 @@ namespace TakeCare.Database.Migrations
                 {
                     b.HasOne("TakeCare.Database.Entity.Address", "Address")
                         .WithMany()
-                        .HasForeignKey("Address_id")
+                        .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -279,13 +279,13 @@ namespace TakeCare.Database.Migrations
                 {
                     b.HasOne("TakeCare.Database.Entity.Doctor", "Doctor")
                         .WithMany("Visits")
-                        .HasForeignKey("Doctor_id")
+                        .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TakeCare.Database.Entity.Patient", "Patient")
                         .WithMany("Visits")
-                        .HasForeignKey("Patient_id")
+                        .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

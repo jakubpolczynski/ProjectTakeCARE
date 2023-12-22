@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TakeCare.Database.Entity
@@ -7,12 +8,17 @@ namespace TakeCare.Database.Entity
 	{
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-		public int User_id { get; set; }
+		public int Id { get; set; }
 		[Required]
-		public string User_email { get; set; } = string.Empty;
+		[EmailAddress]
+		[MaxLength(100)]
+		public string Email { get; set; } = string.Empty;
 		[Required]
-		public string User_password { get; set; } = string.Empty;
+		[PasswordPropertyText]
+		[MaxLength(1024)]
+		public string Password { get; set; } = string.Empty;
 		[Required]
-		public string User_Role { get; set; } = string.Empty;
+		[MaxLength(10)]
+		public string Role { get; set; } = string.Empty;
 	}
 }
