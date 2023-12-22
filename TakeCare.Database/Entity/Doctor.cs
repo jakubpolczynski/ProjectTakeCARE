@@ -7,21 +7,26 @@ namespace TakeCare.Database.Entity
 	{
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-		public int Doctor_id { get; set; }
+		public int Id { get; set; }
 		[Required]
-		public string Doctor_first_name { get; set; } = string.Empty;
+		[MaxLength(100)]
+		public string FirstName { get; set; } = string.Empty;
 		[Required]
-		public string Doctor_last_name { get; set; } = string.Empty;
+		[MaxLength(100)]
+		public string LastName { get; set; } = string.Empty;
 		[Required]
-		public string Doctor_title { get; set; } = string.Empty;
+		[MaxLength(200)]
+		public string Title { get; set; } = string.Empty;
 		[Required]
-		public string Doctor_phone { get; set; } = string.Empty;
+		[MaxLength(12)]
+		public string Phone { get; set; } = string.Empty;
 		[Required]
-		public string Doctor_email { get; set; } = string.Empty;
+		[MaxLength(100)]
+		public string Email { get; set; } = string.Empty;
 		public virtual ICollection<Visit>? Visits { get; set; }
 		[Required]
 		[ForeignKey("User")]
-		public int User_id { get; set; }
+		public int UserId { get; set; }
 		public virtual User? User { get; set; }
 	}
 }

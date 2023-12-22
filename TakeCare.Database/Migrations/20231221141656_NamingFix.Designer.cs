@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TakeCare.Database.Data;
 
@@ -11,9 +12,11 @@ using TakeCare.Database.Data;
 namespace TakeCare.Database.Migrations
 {
     [DbContext(typeof(TakeCareDBContext))]
-    partial class TakeCareDBContextModelSnapshot : ModelSnapshot
+    [Migration("20231221141656_NamingFix")]
+    partial class NamingFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

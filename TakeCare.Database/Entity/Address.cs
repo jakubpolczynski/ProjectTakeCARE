@@ -7,12 +7,15 @@ namespace TakeCare.Database.Entity
 	{
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-		public int Address_id { get; set; }
+		public int Id { get; set; }
 		[Required]
-		public string Address_city { get; set; } = string.Empty;
+		[MaxLength(100)]
+		public string City { get; set; } = string.Empty;
 		[Required]
-		public string Address_street { get; set; } = string.Empty;
+		[MaxLength(200)]
+		public string Street { get; set; } = string.Empty;
 		[Required]
-		public string Address_postal_code { get; set; } = string.Empty;
+		[MaxLength(10)]
+		public string PostalCode { get; set; } = string.Empty;
 	}
 }
