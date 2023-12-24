@@ -28,7 +28,7 @@ builder.Services.AddCors(options =>
 
 var connectionString = builder.Configuration.GetConnectionString("defaultConnection");
 
-builder.Services.AddDbContext<TakeCareDBContext>(options =>
+builder.Services.AddDbContext<TakeCareDbContext>(options =>
 	options.UseSqlServer(connectionString),
 	ServiceLifetime.Scoped);
 
