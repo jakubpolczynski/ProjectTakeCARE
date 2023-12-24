@@ -11,7 +11,7 @@ using TakeCare.Database.Data;
 
 namespace TakeCare.Database.Migrations
 {
-    [DbContext(typeof(TakeCareDBContext))]
+    [DbContext(typeof(TakeCareDbContext))]
     [Migration("20231221141656_NamingFix")]
     partial class NamingFix
     {

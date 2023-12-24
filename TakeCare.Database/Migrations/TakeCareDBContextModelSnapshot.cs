@@ -10,7 +10,7 @@ using TakeCare.Database.Data;
 
 namespace TakeCare.Database.Migrations
 {
-    [DbContext(typeof(TakeCareDBContext))]
+    [DbContext(typeof(TakeCareDbContext))]
     partial class TakeCareDBContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

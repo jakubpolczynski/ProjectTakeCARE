@@ -7,9 +7,9 @@ namespace TakeCare.Application.Services
 {
     public class UserService : IUserService
     {
-        private readonly TakeCareDBContext _context;
+        private readonly TakeCareDbContext _context;
 
-        public UserService(TakeCareDBContext context)
+        public UserService(TakeCareDbContext context)
         {
 			_context = context ?? throw new InvalidArgumentException("Invalid context");
         }
