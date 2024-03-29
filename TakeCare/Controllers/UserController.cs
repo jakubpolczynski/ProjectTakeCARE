@@ -6,7 +6,7 @@ using TakeCare.Models;
 namespace TakeCare.Controllers
 {
     [ApiController]
-    [Route("/api/[controller]")]
+	[Route("/api/[controller]")]
     public class UserController : Controller
     {
 		private readonly IGenericService<User>? _userService;
