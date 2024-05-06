@@ -13,7 +13,8 @@
 </template>
 
 <script setup lang="ts">
-import { RouterView } from "vue-router";
-import TheHeader from "@/components/main/TheHeader.vue";
-import TheFooter from "@/components/main/TheFooter.vue";
+  import { RouterView } from "vue-router";
+  import TheHeader from "@/components/main/TheHeader.vue";
+  import TheFooter from "@/components/main/TheFooter.vue";
 </script>
+<style scoped lang="scss"></style>

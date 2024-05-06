@@ -1,19 +1,32 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    },
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.vitest.json"
-    }
-  ],
+  "compileOnSave": false,
   "compilerOptions": {
-    "allowImportingTsExtensions": true,
-    "noEmit": true
+    "strict": true,
+    "alwaysStrict": true,
+    "baseUrl": "./",
+    "declaration": false,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["es2017", "dom", "es2015", "es6"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noImplicitThis": false, // Causes errors in a number of bindings if switched on
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "outDir": "dist",
+    "sourceMap": true,
+    //"strictBindCallApply": true,
+    "strictFunctionTypes": false,
+    "strictNullChecks": false, // Causes many errors if switched on
+    "target": "es2017",
+    "skipLibCheck": true // Remove duplicate variable declaration
   },
-  "include": ["/src/**/*.ts", "/src/**/**/*.ts", "/src/**/*.vue", "/src/**/**/*.vue"]
+  "exclude": [],
+  "include": ["./src/**/*.ts", "./src/**/**/*.ts", "./src/**/*.vue", "./src/**/**/*.vue"]
 }
