@@ -13,27 +13,48 @@
         <label for="floatingInput">Email address</label>
       </div>
       <div class="form-floating">
-        <input type="password" class="form-control" id="floatingPassword" placeholder="Password" />
+        <input
+          type="password"
+          class="form-control"
+          id="floatingPassword"
+          placeholder="Password"
+        />
         <label for="floatingPassword">Password</label>
       </div>
 
       <div class="form-check text-start my-3">
-        <input class="form-check-input" type="checkbox" value="remember-me" id="flexCheckDefault" />
-        <label class="form-check-label" for="flexCheckDefault"> Remember me </label>
+        <input
+          class="form-check-input"
+          type="checkbox"
+          value="remember-me"
+          id="flexCheckDefault"
+        />
+        <label
+          class="form-check-label"
+          for="flexCheckDefault"
+        >
+          Remember me
+        </label>
       </div>
-      <button class="btn btn-primary w-100 py-2" type="submit">Sign in</button>
+      <button
+        class="btn btn-primary w-100 py-2"
+        type="submit"
+      >
+        Sign in
+      </button>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import ThemeIcon from "@/components/main/ThemeIcon.vue";
+  import { ref } from "vue";
+  import ThemeIcon from "@/components/Icons/ThemeIcon.vue";
 
-const email = ref("");
-const password = ref("");
+  const email = ref("");
+  const password = ref("");
 
-const login = () => {
-  //TODO: Logic for login
-};
+  const login = () => {
+    //TODO: Logic for login
+  };
 </script>
+<style scoped lang="scss"></style>

@@ -3,5 +3,6 @@
   <CalendarView></CalendarView>
 </template>
 <script setup lang="ts">
-import CalendarView from "@/components/visits/CalendarView.vue";
+  import CalendarView from "@/components/visits/CalendarView.vue";
 </script>
+<style scoped lang="scss"></style>

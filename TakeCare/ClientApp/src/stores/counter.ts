@@ -6,7 +6,7 @@ export const useStore = defineStore("main", {
     isLogging: false,
     userMail: "",
     userToken: "",
-    environment: ""
+    environment: "",
   }),
   actions: {
     setIsLogged(value: boolean) {
@@ -23,6 +23,6 @@ export const useStore = defineStore("main", {
     },
     setEnvironment(value: string) {
       this.environment = value;
-    }
-  }
+    },
+  },
 });
