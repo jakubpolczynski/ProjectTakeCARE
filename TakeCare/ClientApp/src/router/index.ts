@@ -1,10 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "@/components/home/HomeView.vue";
 import AboutView from "@/components/about/AboutView.vue";
-import RegisterView from "@/components/register/RegisterView.vue";
 import VisitsView from "@/components/visits/VisitsView.vue";
 import FormsView from "@/components/forms/FormsView.vue";
 import CreateAccountView from "@/components/create account/CreateAccountView.vue";
+import LoginView from "@/components/login/LoginView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,19 +20,14 @@ const router = createRouter({
       component: CreateAccountView,
     },
     {
-      path: "/register",
-      name: "register",
-      component: RegisterView,
+      path: "/login",
+      name: "login",
+      component: LoginView,
     },
     {
       path: "/about",
       name: "about",
       component: AboutView,
-    },
-    {
-      path: "/patients",
-      name: "patients",
-      component: RegisterView,
     },
     {
       path: "/visits",
@@ -45,6 +40,24 @@ const router = createRouter({
       component: FormsView,
     },
   ],
+});
+
+router.beforeEach((to, from, next) => {
+  const publicPages = ["/login", "/createaccount"];
+  const authRequired = !publicPages.includes(to.path);
+  const loggedIn = localStorage.getItem("token");
+
+  if (authRequired && !loggedIn) {
+    return next("/login");
+  } else {
+    next();
+  }
+
+  if (authRequired) {
+    next("/login");
+  } else {
+    next();
+  }
 });
 
 export default router;

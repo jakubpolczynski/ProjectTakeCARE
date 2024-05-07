@@ -26,16 +26,16 @@ namespace TakeCare.Controllers
 	        _patientService = patientService;
 	        _addressService= addressService;
         }
-        [HttpPost]
-        public async Task<IActionResult> AddUser(DoctorDto doctor)
+        [HttpPost("AddDoctor")]
+        public async Task<IActionResult> AddDoctor(DoctorDto doctor)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+				return BadRequest("ModelState is not valid");
             }
             if (doctor.Role != "Doctor" || _userService == null || _doctorService == null)
             {
-                return BadRequest();
+                return BadRequest("Invalid data:"+ doctor.Role);
             }
 
             var userEntity = new User
@@ -61,8 +61,8 @@ namespace TakeCare.Controllers
 			return Ok();
         }
 
-        [HttpPost]
-		public async Task<IActionResult> AddUser(PatientDto patient)
+        [HttpPost("AddPatient")]
+		public async Task<IActionResult> AddPatient(PatientDto patient)
         {
 	        if (!ModelState.IsValid || patient.Role != "Patient" || _userService == null || _patientService == null || _addressService == null)
 	        {
@@ -127,8 +127,8 @@ namespace TakeCare.Controllers
 			return Ok(user);
 		}
 
-        [HttpPost]
-        public async Task<IActionResult> UpdateUser(PatientDto patient)
+        [HttpPost("UpdatePatient")]
+        public async Task<IActionResult> UpdatePatient(PatientDto patient)
         {
 			
 	        if (!ModelState.IsValid || patient.Role != "Patient" || _userService == null || _patientService == null || _addressService == null)
@@ -168,8 +168,8 @@ namespace TakeCare.Controllers
 			return Ok();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> UpdateUser(DoctorDto doctor)
+        [HttpPost("UpdateDoctor")]
+        public async Task<IActionResult> UpdateDoctor(DoctorDto doctor)
         {
 	        if (!ModelState.IsValid || doctor.Role != "Doctor" || _userService == null || _doctorService == null)
 	        {

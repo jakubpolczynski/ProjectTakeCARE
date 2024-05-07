@@ -48,10 +48,20 @@ namespace TakeCare.Application.Services
             return true;
         }
 
-        public async Task<bool> ExistsAsync(int id)
+        public async Task<bool> ExistsAsync(TEntity entity, int id)
         {
-            var entity = await _dbSet.FindAsync(id);
-            return entity != null;
+            TEntity? entityExists;
+            if(entity != null)
+            {
+				entityExists = await _dbSet.FindAsync(entity);
+			}
+            else if(id > 0)
+            {
+			    entityExists = await _dbSet.FindAsync(id);
+            }
+            else throw new ArgumentException("Invalid entity or id provided");
+
+			return entityExists != null;
         }
     }
 }

@@ -6,6 +6,6 @@
         Task<TEntity> ReadAsync(int id);
         Task<TEntity> UpdateAsync(TEntity entity);
         Task<bool> DeleteAsync(int id);
-        Task<bool> ExistsAsync(int id);
+        Task<bool> ExistsAsync(TEntity entity, int id);
     }
 }
