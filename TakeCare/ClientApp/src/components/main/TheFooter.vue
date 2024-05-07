@@ -5,7 +5,7 @@
     </div>
   </footer>
 </template>
-<style scoped lang="scss">
+<style scoped>
   footer {
     position: bottom;
   }

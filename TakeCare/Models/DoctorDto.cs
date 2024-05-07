@@ -3,7 +3,7 @@ namespace TakeCare.Models
 {
 	public class DoctorDto
 	{
-		public int DoctorId { get; set; }
+		public int? DoctorId { get; set; }
 		public string Email { get; set; } = string.Empty;
 		public string Password { get; set; } = string.Empty;
 		public required string Role { get; set; }
