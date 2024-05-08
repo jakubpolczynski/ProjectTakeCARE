@@ -3,11 +3,11 @@ import HomeView from "@/components/home/HomeView.vue";
 import AboutView from "@/components/about/AboutView.vue";
 import VisitsView from "@/components/visits/VisitsView.vue";
 import FormsView from "@/components/forms/FormsView.vue";
-import CreateAccountView from "@/components/create account/CreateAccountView.vue";
+import CreateAccountView from "@/components/create_account/CreateAccountView.vue";
 import LoginView from "@/components/login/LoginView.vue";
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   routes: [
     {
       path: "/",

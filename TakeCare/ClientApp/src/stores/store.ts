@@ -4,6 +4,7 @@ export const useStore = defineStore("main", {
   state: () => ({
     isLogged: false,
     isLogging: false,
+    isLoading: false,
     userMail: "",
     userToken: "",
     environment: "",
@@ -23,6 +24,9 @@ export const useStore = defineStore("main", {
     },
     setEnvironment(value: string) {
       this.environment = value;
+    },
+    setLoading(value: boolean) {
+      this.isLoading = value;
     },
   },
 });

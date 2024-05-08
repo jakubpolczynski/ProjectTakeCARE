@@ -12,7 +12,7 @@
 		public string Street { get; set; } = string.Empty;
 		public string PostalCode { get; set; } = string.Empty;
 		public string Password { get; set; } = string.Empty;
-		public required string Role { get; set; }
+		public required string Role { get; set; } = "Patient";
 
 	}
 }

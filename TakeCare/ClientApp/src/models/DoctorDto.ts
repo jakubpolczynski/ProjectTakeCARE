@@ -1,8 +1,7 @@
 export class DoctorDto {
-  public DoctorId!: number;
   public Email: string = "";
   public Password: string = "";
-  public Role!: string;
+  public Role: string = "Doctor";
   public FirstName: string = "";
   public LastName: string = "";
   public Title: string = "";
