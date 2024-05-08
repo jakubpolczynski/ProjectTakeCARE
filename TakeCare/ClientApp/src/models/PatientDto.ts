@@ -1,5 +1,4 @@
 export class PatientDto {
-  public PatientId!: number;
   public Pesel: string = "";
   public FirstName: string = "";
   public LastName: string = "";
@@ -9,5 +8,5 @@ export class PatientDto {
   public Street: string = "";
   public PostalCode: string = "";
   public Password: string = "";
-  public Role!: string;
+  public Role: string = "Patient";
 }

@@ -40,11 +40,11 @@ builder.Services.AddSpaStaticFiles(config =>
 });
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("FrontendClient", policyBuilder =>
-        policyBuilder.AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .WithExposedHeaders("Location")
-                        .AllowAnyOrigin()
+    options.AddPolicy("AllowSpecificOrigin", policyBuilder =>
+        policyBuilder.WithOrigins("http://localhost:3000")
+						.AllowAnyMethod()
+						.AllowAnyHeader()
+						.AllowAnyOrigin()
     );
 });
 
@@ -71,5 +71,9 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseRouting();
+
+app.UseCors("AllowSpecificOrigin");
 
 app.Run();
