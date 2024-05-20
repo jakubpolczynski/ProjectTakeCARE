@@ -18,28 +18,32 @@
     <div v-if="isDoctorCreating">
       <form
         class="form-group"
-        @submit.prevent="createDoctorAccount"
+        @submit="createDoctorAccount"
       >
         <div class="row mt-3">
           <div class="col-3">
-            <label for="doctor-name">Name</label>
+            <label for="doctor-first-name">first name</label>
             <input
-              id="doctor-name"
-              v-model="doctor.FirstName"
+              id="doctor-first-name"
+              v-model="doctorFirstName"
+              v-bind="doctorFirstNameAttrs"
               class="form-control"
               type="text"
               placeholder="Name"
             />
+            <span class="validation-error">{{ errors.doctorFirstName }}</span>
           </div>
           <div class="col-3">
-            <label for="doctor-surname">Surname</label>
+            <label for="doctor-last-name">Last name</label>
             <input
-              id="doctor-surname"
-              v-model="doctor.LastName"
+              id="doctor-last-name"
+              v-model="doctorLastName"
+              v-bind="doctorLastNameAttrs"
               class="form-control col-3"
               type="text"
               placeholder="Surname"
             />
+            <span class="validation-error">{{ errors.doctorLastName }}</span>
           </div>
         </div>
         <div class="row mt-3">
@@ -47,11 +51,13 @@
             <label for="doctor-title">Title</label>
             <input
               id="doctor-title"
-              v-model="doctor.Title"
+              v-model="doctorTitle"
+              v-bind="doctorTitleAttrs"
               class="form-control"
               type="text"
               placeholder="Title"
             />
+            <span class="validation-error">{{ errors.doctorTitle }}</span>
           </div>
         </div>
         <div class="row mt-3">
@@ -59,21 +65,25 @@
             <label for="doctor-email">Email</label>
             <input
               id="doctor-email"
-              v-model="doctor.Email"
+              v-model="doctorEmail"
+              v-bind="doctorEmailAttrs"
               class="form-control"
               type="text"
               placeholder="Email"
             />
+            <span class="validation-error">{{ errors.doctorEmail }}</span>
           </div>
           <div class="col-3">
             <label for="doctor-phone">Phone</label>
             <input
               id="doctor-phone"
-              v-model="doctor.Phone"
+              v-model="doctorPhone"
+              v-bind="doctorPhoneAttrs"
               class="form-control"
               type="text"
               placeholder="Phone"
             />
+            <span class="validation-error">{{ errors.doctorPhone }}</span>
           </div>
         </div>
         <div class="row mt-3">
@@ -81,56 +91,59 @@
             <label for="doctor-password">Password</label>
             <input
               id="doctor-password"
-              v-model="doctor.Password"
+              v-model="doctorPassword"
+              v-bind="doctorPasswordAttrs"
               class="form-control"
               type="password"
               placeholder="Password"
             />
+            <span class="validation-error">{{ errors.doctorPassword }}</span>
           </div>
         </div>
-        <button
-          type="submit"
-          class="btn btn-success mt-3"
-        >
-          Create
-        </button>
+        <button class="btn btn-success mt-3">Create</button>
       </form>
     </div>
     <div v-if="isPatientCreating">
       <form
         class="form-group"
-        @submit.prevent="createPatientAccount"
+        @submit="createPatientAccount"
       >
         <div class="row mt-3">
           <div class="col-3">
-            <label for="patient-name">Name</label>
+            <label for="patient-name">First name</label>
             <input
               id="patient-name"
-              v-model="patient.FirstName"
+              v-model="patientFirstName"
+              v-bind="patientFirstNameAttrs"
               class="form-control"
               type="text"
               placeholder="Name"
             />
+            <span class="validation-error">{{ errors.patientFirstName }}</span>
           </div>
           <div class="col-3">
-            <label for="patient-surname">Surname</label>
+            <label for="patient-surname">Last name</label>
             <input
               id="patient-surname"
-              v-model="patient.LastName"
+              v-model="patientLastName"
+              v-bind="patientLastNameAttrs"
               class="form-control"
               type="text"
               placeholder="Surname"
             />
+            <span class="validation-error">{{ errors.patientLastName }}</span>
           </div>
           <div class="col-3">
             <label for="patient-pesel">Pesel</label>
             <input
               id="patient-pesel"
-              v-model="patient.Pesel"
+              v-model="patientPesel"
+              v-bind="patientPeselAttrs"
               class="form-control"
               type="text"
               placeholder="Pesel"
             />
+            <span class="validation-error">{{ errors.patientPesel }}</span>
           </div>
         </div>
         <div class="row mt-3">
@@ -138,31 +151,37 @@
             <label for="patient-city">City</label>
             <input
               id="patient-city"
-              v-model="patient.City"
+              v-model="patientCity"
+              v-bind="patientCityAttrs"
               class="form-control"
               type="text"
               placeholder="City"
             />
+            <span class="validation-error">{{ errors.patientCity }}</span>
           </div>
           <div class="col-3">
             <label for="patient-street">Street</label>
             <input
               id="patient-street"
-              v-model="patient.Street"
+              v-model="patientStreet"
+              v-bind="patientStreetAttrs"
               class="form-control"
               type="text"
               placeholder="Street"
             />
+            <span class="validation-error">{{ errors.patientStreet }}</span>
           </div>
           <div class="col-3">
             <label for="patient-postal-code">Postal Code</label>
             <input
               id="patient-postal-code"
-              v-model="patient.PostalCode"
+              v-model="patientPostalCode"
+              v-bind="patientPostalCodeAttrs"
               class="form-control"
               type="text"
               placeholder="Postal Code"
             />
+            <span class="validation-error">{{ errors.patientPostalCode }}</span>
           </div>
         </div>
         <div class="row mt-3">
@@ -170,21 +189,25 @@
             <label for="patient-email">Email</label>
             <input
               id="patient-email"
-              v-model="patient.Email"
+              v-model="patientEmail"
+              v-bind="patientEmailAttrs"
               class="form-control"
               type="text"
               placeholder="Email"
             />
+            <span class="validation-error">{{ errors.patientEmail }}</span>
           </div>
           <div class="col-3">
             <label for="patient-phone">Phone</label>
             <input
               id="patient-phone"
-              v-model="patient.Phone"
+              v-model="patientPhone"
+              v-bind="patientPhoneAttrs"
               class="form-control"
               type="text"
               placeholder="Phone"
             />
+            <span class="validation-error">{{ errors.patientPhone }}</span>
           </div>
         </div>
         <div class="row mt-3">
@@ -192,11 +215,13 @@
             <label for="patient-password">Password</label>
             <input
               id="patient-password"
-              v-model="patient.Password"
+              v-model="patientPassword"
+              v-bind="patientPasswordAttrs"
               class="form-control"
               type="password"
               placeholder="Password"
             />
+            <span class="validation-error">{{ errors.patientPassword }}</span>
           </div>
         </div>
         <button
@@ -211,7 +236,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch } from "vue";
+  import { ref, computed } from "vue";
   import { addDoctor, addPatient } from "@/api/userApi";
   import { DoctorDto } from "@/models/DoctorDto";
   import { PatientDto } from "@/models/PatientDto";
@@ -245,61 +270,122 @@
   });
 
   const doctorSchema = yup.object({
-    Email: yup.string().email("Must be a valid email").required("Email is required"),
-    Password: yup.string().min(8, "Password must be at least 8 characters").required("Password is required"),
-    FirstName: yup.string().required("First name is required"),
-    LastName: yup.string().required("Last name is required"),
-    Title: yup.string().required("Title is required"),
-    Phone: yup
+    doctorEmail: yup.string().email("Must be a valid email").required("Email is required"),
+    doctorPassword: yup
+      .string()
+      .matches(
+        /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
+        "Password must contain at least one lowercase letter, one uppercase letter, one digit, one special character, and be at least 8 characters long"
+      )
+      .required("Password is required"),
+    doctorFirstName: yup.string().max(32, "Name length exceeded").required("First name is required"),
+    doctorLastName: yup.string().required("Last name is required"),
+    doctorTitle: yup.string().required("Title is required"),
+    doctorPhone: yup
       .string()
       .matches(/^[0-9]+$/, "Phone number must be numeric")
       .required("Phone is required"),
   });
 
   const patientSchema = yup.object({
-    Pesel: yup
-      .string()
-      .matches(/^[0-9]+$/, "Phone number must be numeric")
-      .min(11, "PESEL must be exactly 11 characters")
-      .max(11, "PESEL must be exactly 11 characters")
-      .required("Pesel is required"),
-    FirstName: yup.string().required("First name is required"),
-    LastName: yup.string().required("Last name is required"),
-    Email: yup.string().email("Must be a valid email").required("Email is required"),
-    Phone: yup
+    patientPesel: yup.string().min(11, "PESEL must be exactly 11 characters").max(11, "PESEL must be exactly 11 characters").required("Pesel is required"),
+    patientFirstName: yup.string().required("First name is required"),
+    patientLastName: yup.string().required("Last name is required"),
+    patientEmail: yup.string().email("Must be a valid email").required("Email is required"),
+    patientPhone: yup
       .string()
       .matches(/^[0-9]+$/, "Phone number must be numeric")
       .required("Phone is required"),
-    City: yup.string().required("City is required"),
-    Street: yup.string().required("Street is required"),
-    PostalCode: yup.string().required("Postal code is required"),
-    Password: yup.string().min(8, "Password must be at least 8 characters").required("Password is required"),
+    patientCity: yup.string().required("City is required"),
+    patientStreet: yup.string().required("Street is required"),
+    patientPostalCode: yup
+      .string()
+      .matches(/^\d{2}-\d{3}$/, "Postal code must match the format xx-xxx where 'x' is a digit")
+      .required("Postal code is required"),
+    patientPassword: yup
+      .string()
+      .matches(
+        /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
+        "Password must contain at least one lowercase letter, one uppercase letter, one digit, one special character, and be at least 8 characters long"
+      )
+      .required("Password is required"),
   });
 
-  const { handleSubmit, validate } = useForm({
-    validationSchema: isDoctorCreating.value ? doctorSchema : patientSchema,
+  const validationSchema = computed(() => {
+    return isDoctorCreating.value ? doctorSchema : patientSchema;
   });
+
+  const { errors, handleSubmit, defineField, values, resetForm } = useForm({
+    validationSchema: validationSchema,
+  });
+
+  const [doctorFirstName, doctorFirstNameAttrs] = defineField("doctorFirstName");
+  const [doctorLastName, doctorLastNameAttrs] = defineField("doctorLastName");
+  const [doctorTitle, doctorTitleAttrs] = defineField("doctorTitle");
+  const [doctorEmail, doctorEmailAttrs] = defineField("doctorEmail");
+  const [doctorPhone, doctorPhoneAttrs] = defineField("doctorPhone");
+  const [doctorPassword, doctorPasswordAttrs] = defineField("doctorPassword");
+
+  const [patientFirstName, patientFirstNameAttrs] = defineField("patientFirstName");
+  const [patientLastName, patientLastNameAttrs] = defineField("patientLastName");
+  const [patientPesel, patientPeselAttrs] = defineField("patientPesel");
+  const [patientCity, patientCityAttrs] = defineField("patientCity");
+  const [patientStreet, patientStreetAttrs] = defineField("patientStreet");
+  const [patientPostalCode, patientPostalCodeAttrs] = defineField("patientPostalCode");
+  const [patientEmail, patientEmailAttrs] = defineField("patientEmail");
+  const [patientPhone, patientPhoneAttrs] = defineField("patientPhone");
+  const [patientPassword, patientPasswordAttrs] = defineField("patientPassword");
 
   const createDoctor = () => {
     isPatientCreating.value = false;
     isDoctorCreating.value = true;
+    resetForm();
   };
 
   const createPatient = () => {
     isDoctorCreating.value = false;
     isPatientCreating.value = true;
+    resetForm();
   };
 
-  const createPatientAccount = () => {
+  const createPatientAccount = handleSubmit((values) => {
+    fillPatientDto();
     addPatient(patient.value);
+  });
+
+  const createDoctorAccount = handleSubmit((values) => {
+    fillDoctorDto();
+    addDoctor(doctor.value);
+  });
+
+  const fillPatientDto = () => {
+    patient.value.FirstName = patientFirstName.value;
+    patient.value.LastName = patientLastName.value;
+    patient.value.Pesel = patientPesel.value;
+    patient.value.City = patientCity.value;
+    patient.value.Street = patientStreet.value;
+    patient.value.PostalCode = patientPostalCode.value;
+    patient.value.Email = patientEmail.value;
+    patient.value.Phone = patientPhone.value;
+    patient.value.Password = patientPassword.value;
   };
 
-  const createDoctorAccount = () => {
-    addDoctor(doctor.value);
+  const fillDoctorDto = () => {
+    doctor.value.FirstName = doctorFirstName.value;
+    doctor.value.LastName = doctorLastName.value;
+    doctor.value.Title = doctorTitle.value;
+    doctor.value.Email = doctorEmail.value;
+    doctor.value.Phone = doctorPhone.value;
+    doctor.value.Password = doctorPassword.value;
   };
 </script>
 <style scoped>
   .ps-2-5 {
     padding-left: 0.8rem;
+  }
+
+  .validation-error {
+    color: red;
+    font-size: small;
   }
 </style>
