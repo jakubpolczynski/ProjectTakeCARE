@@ -278,9 +278,9 @@
         "Password must contain at least one lowercase letter, one uppercase letter, one digit, one special character, and be at least 8 characters long"
       )
       .required("Password is required"),
-    doctorFirstName: yup.string().max(32, "Name length exceeded").required("First name is required"),
-    doctorLastName: yup.string().required("Last name is required"),
-    doctorTitle: yup.string().required("Title is required"),
+    doctorFirstName: yup.string().max(32, "First name length exceeded").required("First name is required"),
+    doctorLastName: yup.string().max(64, "Last name length exceeded").required("Last name is required"),
+    doctorTitle: yup.string().max(128, "Title length exceeded").required("Title is required"),
     doctorPhone: yup
       .string()
       .matches(/^[0-9]+$/, "Phone number must be numeric")
@@ -289,15 +289,15 @@
 
   const patientSchema = yup.object({
     patientPesel: yup.string().min(11, "PESEL must be exactly 11 characters").max(11, "PESEL must be exactly 11 characters").required("Pesel is required"),
-    patientFirstName: yup.string().required("First name is required"),
-    patientLastName: yup.string().required("Last name is required"),
+    patientFirstName: yup.string().max(32, "First name length exceeded").required("First name is required"),
+    patientLastName: yup.string().max(64, "Last name length exceeded").required("Last name is required"),
     patientEmail: yup.string().email("Must be a valid email").required("Email is required"),
     patientPhone: yup
       .string()
       .matches(/^[0-9]+$/, "Phone number must be numeric")
       .required("Phone is required"),
-    patientCity: yup.string().required("City is required"),
-    patientStreet: yup.string().required("Street is required"),
+    patientCity: yup.string().max(64, "City length exceeded").required("City is required"),
+    patientStreet: yup.string().max(64, "Street length exceeded").required("Street is required"),
     patientPostalCode: yup
       .string()
       .matches(/^\d{2}-\d{3}$/, "Postal code must match the format xx-xxx where 'x' is a digit")
@@ -315,7 +315,7 @@
     return isDoctorCreating.value ? doctorSchema : patientSchema;
   });
 
-  const { errors, handleSubmit, defineField, values, resetForm } = useForm({
+  const { errors, handleSubmit, defineField, resetForm } = useForm({
     validationSchema: validationSchema,
   });
 
