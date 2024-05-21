@@ -2,30 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using TakeCare.Application.Interfaces;
 using TakeCare.Application.Services;
 using TakeCare.Database.Data;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using TakeCare.Database.Entity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Jwt configuration
-var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
-var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-	.AddJwtBearer(options =>
-	{
-		options.TokenValidationParameters = new TokenValidationParameters
-		{
-			ValidateIssuer = true,
-			ValidateAudience = true,
-			ValidateLifetime = true,
-			ValidateIssuerSigningKey = true,
-			ValidIssuer = jwtIssuer,
-			ValidAudience = jwtIssuer,
-			IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtKey!))
-		};
-	});
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -40,13 +20,14 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policyBuilder =>
         policyBuilder.WithOrigins("http://localhost:3000")
-						.AllowAnyMethod()
 						.AllowAnyHeader()
-						.AllowAnyOrigin()
-    );
+						.AllowAnyMethod()
+                        .AllowAnyOrigin()
+	);
 });
 
 var connectionString = builder.Configuration.GetConnectionString("defaultConnection");
+
 
 builder.Services.AddDbContext<TakeCareDbContext>(options =>
 	options.UseSqlServer(connectionString),
@@ -58,6 +39,7 @@ builder.Services.AddScoped(typeof(IGenericService<Doctor>), typeof(GenericServic
 builder.Services.AddScoped(typeof(IGenericService<Address>), typeof(GenericService<TakeCareDbContext, Address>));
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<JwtService>();
 
 var app = builder.Build();
 

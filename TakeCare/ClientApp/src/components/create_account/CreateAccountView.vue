@@ -5,24 +5,27 @@
       <button
         @click="createPatient"
         class="btn btn-primary me-3 col-2"
+        :class="[isPatientCreating ? 'disabled btn-secondary' : '']"
       >
         Patient
       </button>
       <button
         @click="createDoctor"
         class="btn btn-primary col-2"
+        :class="[isDoctorCreating ? 'disabled btn-secondary' : '']"
       >
         Doctor
       </button>
     </div>
     <div v-if="isDoctorCreating">
+      <span>Create doctor account</span>
       <form
         class="form-group"
         @submit="createDoctorAccount"
       >
         <div class="row mt-3">
           <div class="col-3">
-            <label for="doctor-first-name">first name</label>
+            <label for="doctor-first-name">First name</label>
             <input
               id="doctor-first-name"
               v-model="doctorFirstName"
@@ -104,6 +107,7 @@
       </form>
     </div>
     <div v-if="isPatientCreating">
+      <span>Create patient account</span>
       <form
         class="form-group"
         @submit="createPatientAccount"
@@ -233,6 +237,7 @@
       </form>
     </div>
     <div class="request-error">{{ errorMessage }}</div>
+    <div class="request-ok">{{ okMessage }}</div>
   </div>
 </template>
 
@@ -247,6 +252,7 @@
   const isDoctorCreating = ref(false);
   const isPatientCreating = ref(false);
   const errorMessage = ref("");
+  const okMessage = ref("");
 
   const patient = ref<PatientDto>({
     Pesel: "",
@@ -357,7 +363,9 @@
     fillPatientDto();
     await addPatient(patient.value).catch((error) => {
       errorMessage.value = error.response.data;
-      console.log(error.response.data);
+      if (error.response.data === null) {
+        okMessage.value = "Successfully created account!";
+      }
     });
   });
 
@@ -366,7 +374,9 @@
     fillDoctorDto();
     await addDoctor(doctor.value).catch((error) => {
       errorMessage.value = error.response.data;
-      console.log(error.response.data);
+      if (error.response.data === null) {
+        okMessage.value = "Successfully created account!";
+      }
     });
   });
 
@@ -403,6 +413,11 @@
 
   .request-error {
     color: red;
+    font-weight: bold;
+  }
+
+  .request-ok {
+    color: green;
     font-weight: bold;
   }
 </style>
