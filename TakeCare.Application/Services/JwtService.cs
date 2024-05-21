@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Security.Policy;
 using System.Text;
 
 namespace TakeCare.Application.Services
@@ -49,7 +47,7 @@ namespace TakeCare.Application.Services
 			var iv = aesAlg.IV;
 
 			var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-			var msEncrypt = new System.IO.MemoryStream();
+			var msEncrypt = new MemoryStream();
 			using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
 			using (var swEncrypt = new StreamWriter(csEncrypt))
 			{
@@ -77,7 +75,7 @@ namespace TakeCare.Application.Services
 			aesAlg.IV = iv;
 
 			var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-			var msDecrypt = new System.IO.MemoryStream(cipher);
+			var msDecrypt = new MemoryStream(cipher);
 			var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
 			var srDecrypt = new StreamReader(csDecrypt);
 			return srDecrypt.ReadToEnd();
