@@ -151,6 +151,8 @@ namespace TakeCare.Controllers
 
 			var user = await _userGenericService.ReadAsync(id);
 
+
+
 			return Ok(user);
 		}
 
