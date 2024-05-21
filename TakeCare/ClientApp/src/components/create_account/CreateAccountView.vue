@@ -232,6 +232,7 @@
         </button>
       </form>
     </div>
+    <div class="request-error">{{ errorMessage }}</div>
   </div>
 </template>
 
@@ -245,6 +246,7 @@
 
   const isDoctorCreating = ref(false);
   const isPatientCreating = ref(false);
+  const errorMessage = ref("");
 
   const patient = ref<PatientDto>({
     Pesel: "",
@@ -337,25 +339,35 @@
   const [patientPassword, patientPasswordAttrs] = defineField("patientPassword");
 
   const createDoctor = () => {
+    errorMessage.value = "";
     isPatientCreating.value = false;
     isDoctorCreating.value = true;
     resetForm();
   };
 
   const createPatient = () => {
+    errorMessage.value = "";
     isDoctorCreating.value = false;
     isPatientCreating.value = true;
     resetForm();
   };
 
-  const createPatientAccount = handleSubmit((values) => {
+  const createPatientAccount = handleSubmit(async (values) => {
+    errorMessage.value = "";
     fillPatientDto();
-    addPatient(patient.value);
+    await addPatient(patient.value).catch((error) => {
+      errorMessage.value = error.response.data;
+      console.log(error.response.data);
+    });
   });
 
-  const createDoctorAccount = handleSubmit((values) => {
+  const createDoctorAccount = handleSubmit(async (values) => {
+    errorMessage.value = "";
     fillDoctorDto();
-    addDoctor(doctor.value);
+    await addDoctor(doctor.value).catch((error) => {
+      errorMessage.value = error.response.data;
+      console.log(error.response.data);
+    });
   });
 
   const fillPatientDto = () => {
@@ -387,5 +399,10 @@
   .validation-error {
     color: red;
     font-size: small;
+  }
+
+  .request-error {
+    color: red;
+    font-weight: bold;
   }
 </style>

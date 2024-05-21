@@ -9,23 +9,30 @@ namespace TakeCare.Controllers
 	[Route("/api/[controller]")]
     public class UserController : Controller
     {
-		private readonly IGenericService<User>? _userService;
-		private readonly IGenericService<Doctor>? _doctorService;
-		private readonly IGenericService<Patient>? _patientService;
-		private readonly IGenericService<Address>? _addressService;
+		private readonly IGenericService<User>? _userGenericService;
+		private readonly IGenericService<Doctor>? _doctorGenericService;
+		private readonly IGenericService<Patient>? _patientGenericService;
+		private readonly IGenericService<Address>? _addressGenericService;
+		private readonly IUserService? _userService;
+		private readonly IPatientService? _patientService;
 
 		public UserController(
-			IGenericService<User> userService,
-			IGenericService<Doctor> doctorService,
-			IGenericService<Patient> patientService,
-			IGenericService<Address> addressService
+			IGenericService<User> userGenericService,
+			IGenericService<Doctor> doctorGenericService,
+			IGenericService<Patient> patientGenericService,
+			IGenericService<Address> addressGenericService,
+			IUserService userService,
+			IPatientService patientService
 			)
         {
-	        _userService = userService;
-	        _doctorService = doctorService;
-	        _patientService = patientService;
-	        _addressService= addressService;
-        }
+	        _userGenericService = userGenericService;
+	        _doctorGenericService = doctorGenericService;
+	        _patientGenericService = patientGenericService;
+	        _addressGenericService= addressGenericService;
+			_userService = userService;
+			_patientService = patientService;
+
+		}
         [HttpPost("AddDoctor")]
         public async Task<IActionResult> AddDoctor(DoctorDto doctor)
         {
@@ -33,7 +40,7 @@ namespace TakeCare.Controllers
             {
 				return BadRequest("ModelState is not valid");
             }
-            if (doctor.Role != "Doctor" || _userService == null || _doctorService == null)
+            if (doctor.Role != "Doctor" || _userGenericService == null || _doctorGenericService == null)
             {
                 return BadRequest("Invalid data:"+ doctor.Role);
             }
@@ -41,7 +48,7 @@ namespace TakeCare.Controllers
             var userEntity = new User
             {
 	            Email = doctor.Email,
-	            Password = doctor.Password,
+	            Password = BCrypt.Net.BCrypt.HashPassword(doctor.Password),
 	            Role = doctor.Role
             };
 
@@ -55,16 +62,25 @@ namespace TakeCare.Controllers
 				User = userEntity
 			};
 
-            await _userService.CreateAsync(userEntity);
-            await _doctorService.CreateAsync(doctorEntity);
+			var userExists = await _userService!.CheckIfUserExistsAsync(userEntity.Email);
 
-			return Ok();
-        }
+			if(userExists)
+			{
+				return BadRequest("User already exists");
+			}
+			else
+			{
+				await _userGenericService.CreateAsync(userEntity);
+				await _doctorGenericService.CreateAsync(doctorEntity);
+				return Created("Success", doctor);
+
+			}
+		}
 
         [HttpPost("AddPatient")]
 		public async Task<IActionResult> AddPatient(PatientDto patient)
         {
-	        if (!ModelState.IsValid || patient.Role != "Patient" || _userService == null || _patientService == null || _addressService == null)
+	        if (!ModelState.IsValid || patient.Role != "Patient" || _userGenericService == null || _patientGenericService == null || _addressGenericService == null)
 	        {
 		        return BadRequest();
 	        }
@@ -72,8 +88,8 @@ namespace TakeCare.Controllers
 	        var userEntity = new User
 	        {
 		        Email = patient.Email,
-		        Password = patient.Password,
-		        Role = patient.Role
+	            Password = BCrypt.Net.BCrypt.HashPassword(patient.Password),
+				Role = patient.Role
 	        };
 
             var addressEntity = new Address
@@ -94,22 +110,33 @@ namespace TakeCare.Controllers
 	            User = userEntity
             };
 
-	        await _userService.CreateAsync(userEntity);
-	        await _addressService.CreateAsync(addressEntity);
-	        await _patientService.CreateAsync(patientEntity);
+			var userExists = await _userService!.CheckIfUserExistsAsync(userEntity.Email);
+			var patientExists = await _patientService!.CheckIfPatientExistsAsync(patient.Pesel);
 
-	        return Ok();
+			if (userExists || patientExists)
+			{
+				return BadRequest("You already have an account");
+			}
+			else
+			{
+				await _userGenericService.CreateAsync(userEntity);
+				await _addressGenericService.CreateAsync(addressEntity);
+				await _patientGenericService.CreateAsync(patientEntity);
+
+				return Created("Success", patient);
+			}
+
         }
 
         [HttpDelete]
         public async Task<IActionResult> DeleteUser(int id)
         {
-	        if (!ModelState.IsValid || _userService == null)
+	        if (!ModelState.IsValid || _userGenericService == null)
 	        {
 				return BadRequest();
 			}
 
-			await _userService.DeleteAsync(id);
+			await _userGenericService.DeleteAsync(id);
 
 			return Ok();
 		}
@@ -117,12 +144,12 @@ namespace TakeCare.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUser(int id)
         {
-	        if (!ModelState.IsValid || _userService == null)
+	        if (!ModelState.IsValid || _userGenericService == null)
 	        {
 				return BadRequest();
 			}
 
-			var user = await _userService.ReadAsync(id);
+			var user = await _userGenericService.ReadAsync(id);
 
 			return Ok(user);
 		}
@@ -131,7 +158,7 @@ namespace TakeCare.Controllers
         public async Task<IActionResult> UpdatePatient(PatientDto patient)
         {
 			
-	        if (!ModelState.IsValid || patient.Role != "Patient" || _userService == null || _patientService == null || _addressService == null)
+	        if (!ModelState.IsValid || patient.Role != "Patient" || _userGenericService == null || _patientGenericService == null || _addressGenericService == null)
 			{
 				return BadRequest();
 			}
@@ -161,9 +188,9 @@ namespace TakeCare.Controllers
 		        User = userEntity
 	        };
 
-			await _userService.UpdateAsync(userEntity);
-			await _addressService.UpdateAsync(addressEntity);
-			await _patientService.UpdateAsync(patientEntity);
+			await _userGenericService.UpdateAsync(userEntity);
+			await _addressGenericService.UpdateAsync(addressEntity);
+			await _patientGenericService.UpdateAsync(patientEntity);
 
 			return Ok();
         }
@@ -171,7 +198,7 @@ namespace TakeCare.Controllers
         [HttpPost("UpdateDoctor")]
         public async Task<IActionResult> UpdateDoctor(DoctorDto doctor)
         {
-	        if (!ModelState.IsValid || doctor.Role != "Doctor" || _userService == null || _doctorService == null)
+	        if (!ModelState.IsValid || doctor.Role != "Doctor" || _userGenericService == null || _doctorGenericService == null)
 	        {
 		        return BadRequest();
 	        }
@@ -193,8 +220,8 @@ namespace TakeCare.Controllers
 		        User = userEntity
 	        };
 
-	        await _userService.UpdateAsync(userEntity);
-	        await _doctorService.UpdateAsync(doctorEntity);
+	        await _userGenericService.UpdateAsync(userEntity);
+	        await _doctorGenericService.UpdateAsync(doctorEntity);
 
 	        return Ok();
         }

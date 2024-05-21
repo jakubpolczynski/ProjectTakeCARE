@@ -1,11 +1,9 @@
-using Couchbase.Query.Couchbase.N1QL;
 using Microsoft.EntityFrameworkCore;
 using TakeCare.Application.Interfaces;
 using TakeCare.Application.Services;
 using TakeCare.Database.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using TakeCare.Database.Entity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -58,6 +56,8 @@ builder.Services.AddScoped(typeof(IGenericService<User>), typeof(GenericService<
 builder.Services.AddScoped(typeof(IGenericService<Patient>), typeof(GenericService<TakeCareDbContext, Patient>));
 builder.Services.AddScoped(typeof(IGenericService<Doctor>), typeof(GenericService<TakeCareDbContext, Doctor>));
 builder.Services.AddScoped(typeof(IGenericService<Address>), typeof(GenericService<TakeCareDbContext, Address>));
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPatientService, PatientService>();
 
 var app = builder.Build();
 
