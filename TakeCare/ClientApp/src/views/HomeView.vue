@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="row">
-      <h1 class="col-10 d-flex justify-content-start">Welcome to TakeCare – Your Personal Health Ally!</h1>
+      <h1 class="col-10 d-flex justify-content-start">Welcome to TakeCare! Your personal health ally.</h1>
       <span class="col-2 d-flex justify-content-end">Today is {{ date }}</span>
     </div>
     <div class="pt-4">

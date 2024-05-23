@@ -47,10 +47,14 @@ namespace TakeCare.Controllers
 
 			var jwt = _jwtService!.Generate(user.Id, user.Role);
 
-			Response.Cookies.Append("jwt", jwt, new CookieOptions
+			var cookieOptions = new CookieOptions
 			{
-				HttpOnly = true
-			});
+				HttpOnly = true,
+				Secure = true, // Set to true if using HTTPS
+				SameSite = SameSiteMode.None // Set according to your requirements
+			};
+
+			Response.Cookies.Append("jwt", jwt, cookieOptions);
 
 			return Ok("Success login");
 		}
@@ -73,6 +77,21 @@ namespace TakeCare.Controllers
 			{
 				return Unauthorized();
 			}
+		}
+
+		[HttpPost("Logout")]
+		public IActionResult Logout()
+		{
+			var cookieOptions = new CookieOptions
+			{
+				HttpOnly = true,
+				Secure = true,
+				SameSite = SameSiteMode.None,
+			};
+
+			Response.Cookies.Append("jwt", "", cookieOptions);
+
+			return Ok("Success");
 		}
 	}
 }

@@ -71,7 +71,7 @@
               v-model="doctorEmail"
               v-bind="doctorEmailAttrs"
               class="form-control"
-              type="text"
+              type="email"
               placeholder="Email"
             />
             <span class="validation-error">{{ errors.doctorEmail }}</span>
@@ -196,7 +196,7 @@
               v-model="patientEmail"
               v-bind="patientEmailAttrs"
               class="form-control"
-              type="text"
+              type="email"
               placeholder="Email"
             />
             <span class="validation-error">{{ errors.patientEmail }}</span>
@@ -248,6 +248,10 @@
   import { PatientDto } from "@/models/PatientDto";
   import * as yup from "yup";
   import { useForm } from "vee-validate";
+  import { useRouter } from "vue-router";
+  import { AxiosError } from "axios";
+
+  const router = useRouter();
 
   const isDoctorCreating = ref(false);
   const isPatientCreating = ref(false);
@@ -361,23 +365,27 @@
   const createPatientAccount = handleSubmit(async (values) => {
     errorMessage.value = "";
     fillPatientDto();
-    await addPatient(patient.value).catch((error) => {
-      errorMessage.value = error.response.data;
-      if (error.response.data === null) {
-        okMessage.value = "Successfully created account!";
+    try {
+      await addPatient(patient.value);
+      await router.push("/login");
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        errorMessage.value = error.response.data;
       }
-    });
+    }
   });
 
   const createDoctorAccount = handleSubmit(async (values) => {
     errorMessage.value = "";
     fillDoctorDto();
-    await addDoctor(doctor.value).catch((error) => {
-      errorMessage.value = error.response.data;
-      if (error.response.data === null) {
-        okMessage.value = "Successfully created account!";
+    try {
+      await addDoctor(doctor.value);
+      await router.push("/login");
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        errorMessage.value = error.response.data;
       }
-    });
+    }
   });
 
   const fillPatientDto = () => {

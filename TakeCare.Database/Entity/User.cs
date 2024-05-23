@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace TakeCare.Database.Entity
 {
@@ -11,14 +12,12 @@ namespace TakeCare.Database.Entity
 		public int Id { get; set; }
 		[Required]
 		[EmailAddress]
-		[MaxLength(100)]
 		public string Email { get; set; } = string.Empty;
 		[Required]
 		[PasswordPropertyText]
-		[MaxLength(1024)]
+		[JsonIgnore]
 		public string Password { get; set; } = string.Empty;
 		[Required]
-		[MaxLength(10)]
 		public string Role { get; set; } = string.Empty;
 	}
 }

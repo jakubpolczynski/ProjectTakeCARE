@@ -62,7 +62,6 @@
   const monthName = computed(() => currentDate.value.toLocaleString("default", { month: "long" }));
 
   function dayClick(date: Date) {
-    console.log(`Clicked date: ${date}`);
     alert(`Clicked date: ${date}`);
   }
 

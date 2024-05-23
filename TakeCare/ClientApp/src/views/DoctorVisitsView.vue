@@ -1,8 +1,8 @@
 <template>
-  <h1>TakeCARE</h1>
+  <h1>Visits</h1>
   <CalendarView></CalendarView>
 </template>
 <script setup lang="ts">
-  import CalendarView from "@/components/visits/CalendarView.vue";
+  import CalendarView from "@/components/Calendar.vue";
 </script>
 <style scoped lang="scss"></style>
