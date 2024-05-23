@@ -12,11 +12,11 @@ const apiClient = axios.create({
 });
 
 export const addDoctor = async (data: DoctorDto) => {
-  await apiClient.post("/User/AddDoctor", data);
+  return await apiClient.post("/User/AddDoctor", data);
 };
 
 export const addPatient = async (data: PatientDto) => {
-  await apiClient.post("/User/AddPatient", data);
+  return await apiClient.post("/User/AddPatient", data);
 };
 
 export const deleteUser = async (id: string) => {};

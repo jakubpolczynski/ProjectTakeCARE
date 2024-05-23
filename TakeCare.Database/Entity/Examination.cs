@@ -11,16 +11,12 @@ namespace TakeCare.Database.Entity
 		[Required]
 		public DateTime? Date { get; set; }
 		[Required]
-		[MaxLength(100)]
 		public string Name { get; set; } = string.Empty;
 		[Required]
-		[MaxLength(4000)]
 		public string Description { get; set; } = string.Empty;
 		[Required]
-		[MaxLength(100)]
 		public string Type { get; set; } = string.Empty;
 		[Required]
-		[MaxLength(500)]
 		public string Result { get; set; } = string.Empty;
 		[Required]
 		[ForeignKey("Patient")]

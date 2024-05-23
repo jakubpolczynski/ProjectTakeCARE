@@ -16,15 +16,17 @@ builder.Services.AddSpaStaticFiles(config =>
 {
     config.RootPath = "ClientApp/dist";
 });
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigin", policyBuilder =>
-        policyBuilder.WithOrigins("http://localhost:3000")
-						.AllowAnyHeader()
-						.AllowAnyMethod()
-                        .AllowAnyOrigin()
-	);
-});
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowSpecificOrigin", policyBuilder =>
+//        policyBuilder.WithOrigins("http://localhost:3000")
+//						.AllowAnyHeader()
+//						.AllowAnyMethod()
+//                        .AllowAnyOrigin()
+//	);
+//});
+
+builder.Services.AddCors();
 
 var connectionString = builder.Configuration.GetConnectionString("defaultConnection");
 
@@ -56,6 +58,12 @@ app.MapControllers();
 
 app.UseRouting();
 
-app.UseCors("AllowSpecificOrigin");
+//app.UseCors("AllowSpecificOrigin");
+app.UseCors(options => options
+	.WithOrigins("https://localhost:3000")
+	.AllowAnyMethod()
+	.AllowAnyHeader()
+	.AllowCredentials()
+);
 
 app.Run();
