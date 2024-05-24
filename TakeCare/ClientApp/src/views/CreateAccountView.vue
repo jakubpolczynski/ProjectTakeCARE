@@ -51,16 +51,12 @@
         </div>
         <div class="row mt-3">
           <div class="col-6">
-            <label for="doctor-title">Title</label>
-            <input
-              id="doctor-title"
-              v-model="doctorTitle"
-              v-bind="doctorTitleAttrs"
-              class="form-control"
-              type="text"
-              placeholder="Title"
+            <label for="doctor-title">Medical specialization</label>
+            <SearchableSelect
+              v-model="selectedSpecialty"
+              :options="specialties"
             />
-            <span class="validation-error">{{ errors.doctorTitle }}</span>
+            <span class="validation-error">{{ specializationError }}</span>
           </div>
         </div>
         <div class="row mt-3">
@@ -237,7 +233,6 @@
       </form>
     </div>
     <div class="request-error">{{ errorMessage }}</div>
-    <div class="request-ok">{{ okMessage }}</div>
   </div>
 </template>
 
@@ -250,13 +245,16 @@
   import { useForm } from "vee-validate";
   import { useRouter } from "vue-router";
   import { AxiosError } from "axios";
+  import SearchableSelect from "@/components/SearchableSelect.vue";
+  import { MedicalSpecialties } from "@/enums/MedicalSpecialties";
 
   const router = useRouter();
 
   const isDoctorCreating = ref(false);
   const isPatientCreating = ref(false);
   const errorMessage = ref("");
-  const okMessage = ref("");
+  const specializationError = ref("");
+  const selectedSpecialty = ref("");
 
   const patient = ref<PatientDto>({
     Pesel: "",
@@ -281,6 +279,13 @@
     Role: "Doctor",
   });
 
+  const specialties = ref(
+    Object.values(MedicalSpecialties).map((specialty) => ({
+      value: specialty,
+      label: specialty,
+    }))
+  );
+
   const doctorSchema = yup.object({
     doctorEmail: yup.string().email("Must be a valid email").required("Email is required"),
     doctorPassword: yup
@@ -292,7 +297,6 @@
       .required("Password is required"),
     doctorFirstName: yup.string().max(32, "First name length exceeded").required("First name is required"),
     doctorLastName: yup.string().max(64, "Last name length exceeded").required("Last name is required"),
-    doctorTitle: yup.string().max(128, "Title length exceeded").required("Title is required"),
     doctorPhone: yup
       .string()
       .matches(/^[0-9]+$/, "Phone number must be numeric")
@@ -333,7 +337,6 @@
 
   const [doctorFirstName, doctorFirstNameAttrs] = defineField("doctorFirstName");
   const [doctorLastName, doctorLastNameAttrs] = defineField("doctorLastName");
-  const [doctorTitle, doctorTitleAttrs] = defineField("doctorTitle");
   const [doctorEmail, doctorEmailAttrs] = defineField("doctorEmail");
   const [doctorPhone, doctorPhoneAttrs] = defineField("doctorPhone");
   const [doctorPassword, doctorPasswordAttrs] = defineField("doctorPassword");
@@ -377,13 +380,15 @@
 
   const createDoctorAccount = handleSubmit(async (values) => {
     errorMessage.value = "";
-    fillDoctorDto();
-    try {
-      await addDoctor(doctor.value);
-      await router.push("/login");
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        errorMessage.value = error.response.data;
+    if (checkSpecialty()) {
+      fillDoctorDto();
+      try {
+        await addDoctor(doctor.value);
+        await router.push("/login");
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          errorMessage.value = error.response.data;
+        }
       }
     }
   });
@@ -403,10 +408,20 @@
   const fillDoctorDto = () => {
     doctor.value.FirstName = doctorFirstName.value;
     doctor.value.LastName = doctorLastName.value;
-    doctor.value.Title = doctorTitle.value;
+    doctor.value.Title = specialties.value.find((specialty) => specialty.value === selectedSpecialty.value)?.label;
     doctor.value.Email = doctorEmail.value;
     doctor.value.Phone = doctorPhone.value;
     doctor.value.Password = doctorPassword.value;
+  };
+
+  const checkSpecialty = () => {
+    if (!specialties.value.find((specialty) => specialty.value === selectedSpecialty.value)) {
+      specializationError.value = "Invalid specialty";
+      return false;
+    } else {
+      specializationError.value = "";
+      return true;
+    }
   };
 </script>
 <style scoped>

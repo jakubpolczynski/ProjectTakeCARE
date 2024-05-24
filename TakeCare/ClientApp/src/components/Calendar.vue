@@ -1,53 +1,52 @@
 <template>
-  <div class="container my-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <button
-        class="btn btn-primary"
-        @click="goToPreviousMonth"
-      >
-        Previous
-      </button>
-      <h2>{{ monthName }} {{ year }}</h2>
-      <button
-        class="btn btn-primary"
-        @click="goToNextMonth"
-      >
-        Next
-      </button>
-    </div>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <button
+      class="btn btn-primary"
+      @click="goToPreviousMonth"
+    >
+      Previous
+    </button>
+    <h2>{{ monthName }} {{ year }}</h2>
+    <button
+      class="btn btn-primary"
+      @click="goToNextMonth"
+    >
+      Next
+    </button>
+  </div>
 
-    <div class="table-responsive">
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th
-              v-for="day in weekDays"
-              :key="day"
-            >
-              {{ day }}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="(week, index) in calendarDays"
-            :key="index"
+  <div class="table-responsive">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th
+            v-for="day in weekDays"
+            :key="day"
           >
-            <td
-              v-for="day in week"
-              :key="day.date"
-              :class="{
-                'bg-light': !day.isCurrentMonth,
-                'text-light bg-info': day.isAnyEventSet > 8,
-              }"
-              @click="dayClick(day.date)"
-            >
-              {{ day.day }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+            {{ day }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="(week, index) in calendarDays"
+          :key="index"
+        >
+          <td
+            v-for="day in week"
+            :key="day.date"
+            :class="{
+              'bg-light': !day.isCurrentMonth,
+              'text-light bg-info': day.isAnyEventSet > 8,
+            }"
+            class="day-cell"
+            @click="dayClick(day.date)"
+          >
+            {{ day.day }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
@@ -75,7 +74,7 @@
         day: date.getDate(),
         date: date.toISOString().split("T")[0],
         isCurrentMonth: date.getMonth() === month.value,
-        isAnyEventSet: Math.floor(Math.random() * 10),
+        isAnyEventSet: date.getMonth() === month.value ? Math.floor(Math.random() * 10) : 0,
       });
     }
 
@@ -102,4 +101,8 @@
 
   const calendarDays = computed(getCalendarDays);
 </script>
-<style scoped lang="scss"></style>
+<style scoped>
+  .day-cell {
+    cursor: pointer;
+  }
+</style>

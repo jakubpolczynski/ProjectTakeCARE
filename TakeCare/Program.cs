@@ -41,6 +41,7 @@ builder.Services.AddScoped(typeof(IGenericService<Doctor>), typeof(GenericServic
 builder.Services.AddScoped(typeof(IGenericService<Address>), typeof(GenericService<TakeCareDbContext, Address>));
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IVisitService, VisitService>();
 builder.Services.AddScoped<JwtService>();
 
 var app = builder.Build();
