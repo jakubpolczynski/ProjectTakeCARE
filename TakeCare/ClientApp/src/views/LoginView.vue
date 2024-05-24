@@ -48,7 +48,7 @@
             text="Create account"
           />
         </button>
-        <span>{{ errorMessage }}</span>
+        <span class="text-danger">{{ errorMessage }}</span>
       </div>
     </div>
   </div>
@@ -65,7 +65,6 @@
   import { store } from "@/store/store";
   import { useRouter } from "vue-router";
   import { AxiosError } from "axios";
-  import { UserDto } from "@/models/UserDto";
 
   const router = useRouter();
 
@@ -96,10 +95,13 @@
       const response = await getUser();
       await store.dispatch("setAuth", true);
       await store.dispatch("setUser", response.data.role);
+      resetForm();
       await router.push("/");
     } catch (error) {
-      if (error instanceof AxiosError) {
+      if (error instanceof AxiosError && error.response) {
         errorMessage.value = error.response.data;
+      } else {
+        errorMessage.value = "An unexpected error occurred";
       }
       await store.dispatch("setAuth", false);
       await store.dispatch("setUser", "");
@@ -111,4 +113,10 @@
     user.value.Password = password.value;
   };
 </script>
-<style scoped lang="scss"></style>
+
+<style scoped>
+  .validation-error {
+    color: red;
+    font-size: small;
+  }
+</style>

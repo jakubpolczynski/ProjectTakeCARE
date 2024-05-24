@@ -5,14 +5,24 @@ interface State {
   user: string;
 }
 
+const getDefaultState = (): State => {
+  return {
+    authenticated: localStorage.getItem("authenticated") === "true" || false,
+    user: localStorage.getItem("user") || "",
+  };
+};
+
 export const store = createStore<State>({
-  state: {
-    authenticated: false,
-    user: "",
-  },
+  state: getDefaultState(),
   mutations: {
-    SET_AUTH: (state: { authenticated: boolean }, auth: boolean) => (state.authenticated = auth),
-    SET_USER: (state: { user: string }, user: string) => (state.user = user),
+    SET_AUTH: (state: State, auth: boolean) => {
+      state.authenticated = auth;
+      localStorage.setItem("authenticated", auth.toString());
+    },
+    SET_USER: (state: State, user: string) => {
+      state.user = user;
+      localStorage.setItem("user", user);
+    },
   },
   actions: {
     setAuth: ({ commit }: { commit: Commit }, auth: boolean) => commit("SET_AUTH", auth),
