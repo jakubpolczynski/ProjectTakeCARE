@@ -38,9 +38,13 @@
             :class="{
               'bg-light': !day.isCurrentMonth,
               'text-light bg-info': day.isAnyEventSet > 8,
+              'text-light bg-warning': day.date === todayDate,
+              'text-light bg-secondary': day.date === selectedDate,
+              'non-clickable': !day.isCurrentMonth || day.date < todayDate,
+              subdued: day.date < todayDate,
             }"
             class="day-cell"
-            @click="dayClick(day.date)"
+            @click="day.isCurrentMonth && day.date >= todayDate && dayClick(day.date.toString())"
           >
             {{ day.day }}
           </td>
@@ -56,14 +60,16 @@
   const emit = defineEmits(["dayClick"]);
 
   const currentDate = ref(new Date());
+  const selectedDate = ref<string | null>(null);
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const month = computed(() => currentDate.value.getMonth());
   const year = computed(() => currentDate.value.getFullYear());
   const monthName = computed(() => currentDate.value.toLocaleString("default", { month: "long" }));
+  const todayDate = new Date().toISOString().split("T")[0];
 
-  function dayClick(date: Date) {
-    console.log(date);
+  function dayClick(date: string) {
+    selectedDate.value = date;
     emit("dayClick", date);
   }
 
@@ -109,5 +115,20 @@
 <style scoped>
   .day-cell {
     cursor: pointer;
+  }
+
+  .non-clickable {
+    pointer-events: none;
+    color: #ccc;
+  }
+
+  .subdued {
+    color: #999;
+  }
+
+  .clicked {
+    background-color: #6c757d;
+    border-radius: 50%;
+    border-color: #6c757d;
   }
 </style>

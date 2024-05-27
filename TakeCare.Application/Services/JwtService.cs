@@ -15,11 +15,12 @@ namespace TakeCare.Application.Services
 			secureKey = configuration!.GetSection("Jwt:Key").Value!;
 		}
 
-		public string Generate(int id, string role)
+		public string Generate(int id, string role, string email)
 		{
 			// Encrypt the data before adding it to the JWT payload
 			string encryptedId = EncryptString(id.ToString());
 			string encryptedRole = EncryptString(role);
+			string encryptedEmail = EncryptString(email);
 
 			var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secureKey));
 			var credentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature);
@@ -30,6 +31,7 @@ namespace TakeCare.Application.Services
 			{
 				{ "iss", encryptedId },
 				{ "role", encryptedRole },
+				{ "email", encryptedEmail },
 				{ "exp", exp }
 			};
 			var securityToken = new JwtSecurityToken(header, payload);

@@ -15,10 +15,9 @@
   import Calendar from "@/components/Calendar.vue";
   import CreateVisit from "@/components/CreateVisit.vue";
 
-  const selectedDate = ref<Date | null>(null);
+  const selectedDate = ref<string | null>(null);
 
-  function handleDayClick(date: Date) {
-    console.log("Data odebrana: ", date);
+  function handleDayClick(date: string) {
     selectedDate.value = date;
   }
 </script>
