@@ -71,8 +71,8 @@
   const errorMessage = ref("");
 
   const user = ref<LoginDto>({
-    Email: "",
-    Password: "",
+    email: "",
+    password: "",
   });
 
   const userSchema = yup.object({
@@ -109,8 +109,8 @@
   });
 
   const fillLoginDto = () => {
-    user.value.Email = email.value;
-    user.value.Password = password.value;
+    user.value.email = email.value;
+    user.value.password = password.value;
   };
 </script>
 

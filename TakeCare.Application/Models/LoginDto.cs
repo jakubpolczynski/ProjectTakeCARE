@@ -1,7 +1,7 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
 
-namespace TakeCare.Models
+namespace TakeCare.Application.Models
 {
 	public class LoginDto
 	{

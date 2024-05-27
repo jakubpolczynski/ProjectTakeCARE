@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TakeCare.Application.Interfaces;
 using TakeCare.Database.Data;
+using TakeCare.Application.Models;
 
 namespace TakeCare.Application.Services
 {
@@ -13,40 +14,55 @@ namespace TakeCare.Application.Services
 			_context = context;
 		}
 
-		public async Task<IEnumerable<DateTime>> FindAvailableDate(string firstName, string lastName, DateTime date)
+		public async Task<AvailableDateDto> FindAvailableDate(string? firstName, string? lastName, string specialization, DateTime date)
 		{
 			var startHour = 9;
 			var endHour = 17;
 
-			var doctor = await _context.DoctorTable!
-				.FirstOrDefaultAsync(d => d.FirstName == firstName && d.LastName == lastName);
+			var doctorsQuery = _context.DoctorTable!.AsQueryable();
 
-			if (doctor == null)
+			if (!string.IsNullOrEmpty(firstName) && !string.IsNullOrEmpty(lastName))
 			{
-				throw new ArgumentException("Doctor not found.");
+				doctorsQuery = doctorsQuery.Where(d => d.FirstName == firstName && d.LastName == lastName);
 			}
 
-			var doctorId = doctor.Id;
+			var doctors = await doctorsQuery.Where(d => d.Specialization == specialization).ToListAsync();
 
-			var allSlots = Enumerable.Range(startHour, endHour - startHour)
-									  .Select(hour => new DateTime(date.Year, date.Month, date.Day, hour, 0, 0, DateTimeKind.Local))
-									  .ToList();
+			if (!doctors.Any())
+			{
+				throw new ArgumentException("No doctors found for the provided criteria.");
+			}
 
-			var appointments = await _context.VisitTable!
-				.Where(v => v.DoctorId == doctorId && v.Date.Date == date.Date)
-				.Select(v => v.Date)
-				.ToListAsync();
+			var doctorDtos = new List<AvailableDateDoctorDto>();
 
-			var availableSlots = allSlots.Except(appointments).ToList();
+			foreach (var doctor in doctors)
+			{
+				var allSlots = Enumerable.Range(startHour, endHour - startHour)
+										  .Select(hour => new DateTime(date.Year, date.Month, date.Day, hour, 0, 0, DateTimeKind.Local))
+										  .ToList();
 
-			return availableSlots;
+				var appointments = await _context.VisitTable!
+					.Where(v => v.DoctorId == doctor.Id && v.Date.Date == date.Date)
+					.Select(v => v.Date)
+					.ToListAsync();
+
+				var availableSlots = allSlots.Except(appointments).ToList();
+
+				doctorDtos.Add(new AvailableDateDoctorDto
+				{
+					FirstName = doctor.FirstName,
+					LastName = doctor.LastName,
+					Specialization = doctor.Specialization,
+					Phone = doctor.Phone,
+					Email = doctor.Email,
+					AvailableSlots = availableSlots
+				});
+			}
+
+			return new AvailableDateDto
+			{
+				Doctors = doctorDtos
+			};
 		}
-	}
-
-	public class Appointment
-	{
-		public string? DoctorFirstName { get; set; }
-		public string? DoctorLastName { get; set; }
-		public DateTime Date { get; set; }
 	}
 }

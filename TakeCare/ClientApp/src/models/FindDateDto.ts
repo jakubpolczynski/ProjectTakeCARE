@@ -1,5 +1,6 @@
 export class FindDateDto {
-  public firstName: string;
-  public lastName: string;
-  public date: Date;
+  public firstName?: string;
+  public lastName?: string;
+  public specialization: string;
+  public date: string;
 }

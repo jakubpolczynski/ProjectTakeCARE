@@ -51,7 +51,7 @@
         </div>
         <div class="row mt-3">
           <div class="col-6">
-            <label for="doctor-title">Medical specialization</label>
+            <label for="doctor-specialization">Medical specialization</label>
             <SearchableSelect
               v-model="selectedSpecialty"
               :options="specialties"
@@ -257,26 +257,26 @@
   const selectedSpecialty = ref("");
 
   const patient = ref<PatientDto>({
-    Pesel: "",
-    FirstName: "",
-    LastName: "",
-    Email: "",
-    Phone: "",
-    City: "",
-    Street: "",
-    PostalCode: "",
-    Password: "",
-    Role: "Patient",
+    pesel: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    city: "",
+    street: "",
+    postalCode: "",
+    password: "",
+    role: "Patient",
   });
 
   const doctor = ref<DoctorDto>({
-    Email: "",
-    Password: "",
-    FirstName: "",
-    LastName: "",
-    Title: "",
-    Phone: "",
-    Role: "Doctor",
+    email: "",
+    password: "",
+    firstName: "",
+    lastName: "",
+    specialization: "",
+    phone: "",
+    role: "Doctor",
   });
 
   const specialties = ref(
@@ -394,24 +394,24 @@
   });
 
   const fillPatientDto = () => {
-    patient.value.FirstName = patientFirstName.value;
-    patient.value.LastName = patientLastName.value;
-    patient.value.Pesel = patientPesel.value;
-    patient.value.City = patientCity.value;
-    patient.value.Street = patientStreet.value;
-    patient.value.PostalCode = patientPostalCode.value;
-    patient.value.Email = patientEmail.value;
-    patient.value.Phone = patientPhone.value;
-    patient.value.Password = patientPassword.value;
+    patient.value.firstName = patientFirstName.value;
+    patient.value.lastName = patientLastName.value;
+    patient.value.pesel = patientPesel.value;
+    patient.value.city = patientCity.value;
+    patient.value.street = patientStreet.value;
+    patient.value.postalCode = patientPostalCode.value;
+    patient.value.email = patientEmail.value;
+    patient.value.phone = patientPhone.value;
+    patient.value.password = patientPassword.value;
   };
 
   const fillDoctorDto = () => {
-    doctor.value.FirstName = doctorFirstName.value;
-    doctor.value.LastName = doctorLastName.value;
-    doctor.value.Title = specialties.value.find((specialty) => specialty.value === selectedSpecialty.value)?.label;
-    doctor.value.Email = doctorEmail.value;
-    doctor.value.Phone = doctorPhone.value;
-    doctor.value.Password = doctorPassword.value;
+    doctor.value.firstName = doctorFirstName.value;
+    doctor.value.lastName = doctorLastName.value;
+    doctor.value.specialization = specialties.value.find((specialty) => specialty.value === selectedSpecialty.value)?.label;
+    doctor.value.email = doctorEmail.value;
+    doctor.value.phone = doctorPhone.value;
+    doctor.value.password = doctorPassword.value;
   };
 
   const checkSpecialty = () => {

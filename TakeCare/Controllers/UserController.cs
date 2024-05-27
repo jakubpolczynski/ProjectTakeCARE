@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TakeCare.Application.Interfaces;
 using TakeCare.Database.Entity;
-using TakeCare.Models;
+using TakeCare.Application.Models;
 
 namespace TakeCare.Controllers
 {
@@ -56,7 +56,7 @@ namespace TakeCare.Controllers
             {
 				FirstName = doctor.FirstName,
 				LastName = doctor.LastName,
-				Title = doctor.Title,
+				Specialization = doctor.Specialization,
 				Phone = doctor.Phone,
 				Email = doctor.Email,
 				User = userEntity
@@ -216,7 +216,7 @@ namespace TakeCare.Controllers
 	        {
 		        FirstName = doctor.FirstName,
 		        LastName = doctor.LastName,
-		        Title = doctor.Title,
+				Specialization = doctor.Specialization,
 		        Phone = doctor.Phone,
 		        Email = doctor.Email,
 		        User = userEntity

@@ -2,7 +2,7 @@
 using TakeCare.Application.Interfaces;
 using TakeCare.Application.Services;
 using TakeCare.Database.Entity;
-using TakeCare.Models;
+using TakeCare.Application.Models;
 
 namespace TakeCare.Controllers
 {
