@@ -45,7 +45,7 @@ namespace TakeCare.Controllers
 				return BadRequest("Invalid credentials");
 			}
 
-			var jwt = _jwtService!.Generate(user.Id, user.Role);
+			var jwt = _jwtService!.Generate(user.Id, user.Role, user.Email);
 
 			var cookieOptions = new CookieOptions
 			{

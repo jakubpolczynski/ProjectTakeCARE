@@ -95,6 +95,7 @@
       const response = await getUser();
       await store.dispatch("setAuth", true);
       await store.dispatch("setUser", response.data.role);
+      await store.dispatch("setEmail", response.data.email);
       resetForm();
       await router.push("/");
     } catch (error) {
@@ -105,6 +106,7 @@
       }
       await store.dispatch("setAuth", false);
       await store.dispatch("setUser", "");
+      await store.dispatch("setEmail", "");
     }
   });
 
