@@ -13,7 +13,7 @@ namespace TakeCare.Database.Entity
 		[Required]
 		public string LastName { get; set; } = string.Empty;
 		[Required]
-		public string Title { get; set; } = string.Empty;
+		public string Specialization { get; set; } = string.Empty;
 		[Required]
 		public string Phone { get; set; } = string.Empty;
 		[Required]

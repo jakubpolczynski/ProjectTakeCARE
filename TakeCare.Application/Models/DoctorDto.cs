@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TakeCare.Models
+namespace TakeCare.Application.Models
 {
 	public class DoctorDto
 	{
@@ -22,7 +22,7 @@ namespace TakeCare.Models
 		public string LastName { get; set; } = string.Empty;
 		[Required]
 		[MaxLength(128)]
-		public string Title { get; set; } = string.Empty;
+		public string Specialization { get; set; } = string.Empty;
 		[Required]
 		[RegularExpression("^[0-9]+$")]
 		public string Phone { get; set; } = string.Empty;

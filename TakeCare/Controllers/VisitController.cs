@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TakeCare.Application.Interfaces;
-using TakeCare.Models;
+using TakeCare.Application.Models;
 
 namespace TakeCare.Controllers
 {
+	[ApiController]
+	[Route("/api/[controller]")]
 	public class VisitController : Controller
 	{
 		private readonly IVisitService? _visitService;
@@ -13,21 +15,22 @@ namespace TakeCare.Controllers
 			_visitService = visitService;
 		}
 
-		[HttpGet("FindAvilableVisits")]
-		public async Task<IActionResult> FindAvilableVisits(FindDateDto findDate)
+		[HttpPost("FindAvailableVisits")]
+		public async Task<IActionResult> FindAvailableVisits(FindDateDto findDate)
 		{
 			var firstName = findDate.FirstName;
 			var lastName = findDate.LastName;
+			var specialization = findDate.Specialization;
 			var date = findDate.Date;
 
-			if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || date == default)
+			if (string.IsNullOrWhiteSpace(specialization) || date == default)
 			{
 				return BadRequest("Invalid input parameters.");
 			}
 
 			try
 			{
-				var availableVisits = await _visitService!.FindAvailableDate(firstName, lastName, date);
+				var availableVisits = await _visitService!.FindAvailableDate(firstName, lastName, specialization, date);
 				return Ok(availableVisits);
 			}
 			catch (ArgumentException ex)

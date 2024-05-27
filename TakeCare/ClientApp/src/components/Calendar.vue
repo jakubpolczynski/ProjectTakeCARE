@@ -51,7 +51,9 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref } from "vue";
+  import { computed, ref, defineEmits } from "vue";
+
+  const emit = defineEmits(["dayClick"]);
 
   const currentDate = ref(new Date());
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -61,7 +63,8 @@
   const monthName = computed(() => currentDate.value.toLocaleString("default", { month: "long" }));
 
   function dayClick(date: Date) {
-    alert(`Clicked date: ${date}`);
+    console.log(date);
+    emit("dayClick", date);
   }
 
   function getCalendarDays() {
@@ -70,9 +73,10 @@
     let days = [];
     for (let i = 1 - startDay, dayCounter = 0; dayCounter < 42; i++, dayCounter++) {
       let date = new Date(year.value, month.value, i);
+      date.setHours(0, 0, 0, 0);
       days.push({
         day: date.getDate(),
-        date: date.toISOString().split("T")[0],
+        date: `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`,
         isCurrentMonth: date.getMonth() === month.value,
         isAnyEventSet: date.getMonth() === month.value ? Math.floor(Math.random() * 10) : 0,
       });
@@ -101,6 +105,7 @@
 
   const calendarDays = computed(getCalendarDays);
 </script>
+
 <style scoped>
   .day-cell {
     cursor: pointer;

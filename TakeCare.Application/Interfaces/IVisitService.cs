@@ -1,9 +1,9 @@
-﻿using TakeCare.Database.Entity;
+﻿using TakeCare.Application.Models;
 
 namespace TakeCare.Application.Interfaces
 {
 	public interface IVisitService
 	{
-		Task<IEnumerable<DateTime>> FindAvailableDate(string firstName, string lastName, DateTime date);
+		Task<AvailableDateDto> FindAvailableDate(string? firstName, string? lastName, string specialization, DateTime date);
 	}
 }

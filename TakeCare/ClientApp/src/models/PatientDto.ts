@@ -1,12 +1,12 @@
 export class PatientDto {
-  public Pesel: string = "";
-  public FirstName: string = "";
-  public LastName: string = "";
-  public Email: string = "";
-  public Phone: string = "";
-  public City: string = "";
-  public Street: string = "";
-  public PostalCode: string = "";
-  public Password: string = "";
-  public Role: string = "Patient";
+  public pesel: string = "";
+  public firstName: string = "";
+  public lastName: string = "";
+  public email: string = "";
+  public phone: string = "";
+  public city: string = "";
+  public street: string = "";
+  public postalCode: string = "";
+  public password: string = "";
+  public role: string = "Patient";
 }

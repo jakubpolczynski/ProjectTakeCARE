@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TakeCare.Application.Interfaces;
+using TakeCare.Application.Models;
 using Couchbase.Core.Exceptions;
 
 namespace TakeCare.Application.Services
