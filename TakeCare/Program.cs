@@ -6,8 +6,6 @@ using TakeCare.Database.Entity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -16,23 +14,17 @@ builder.Services.AddSpaStaticFiles(config =>
 {
     config.RootPath = "ClientApp/dist";
 });
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowSpecificOrigin", policyBuilder =>
-//        policyBuilder.WithOrigins("http://localhost:3000")
-//						.AllowAnyHeader()
-//						.AllowAnyMethod()
-//                        .AllowAnyOrigin()
-//	);
-//});
 
 builder.Services.AddCors();
 
 var connectionString = builder.Configuration.GetConnectionString("defaultConnection");
 
 
-builder.Services.AddDbContext<TakeCareDbContext>(options =>
-	options.UseSqlServer(connectionString),
+builder.Services.AddDbContext<TakeCareDbContext>(options => 
+	{
+		options.EnableSensitiveDataLogging(true);
+		options.UseSqlServer(connectionString);
+	},
 	ServiceLifetime.Scoped);
 
 builder.Services.AddScoped(typeof(IGenericService<User>), typeof(GenericService<TakeCareDbContext, User>));
@@ -46,7 +38,6 @@ builder.Services.AddScoped<JwtService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -59,7 +50,6 @@ app.MapControllers();
 
 app.UseRouting();
 
-//app.UseCors("AllowSpecificOrigin");
 app.UseCors(options => options
 	.WithOrigins("https://localhost:3000")
 	.AllowAnyMethod()
