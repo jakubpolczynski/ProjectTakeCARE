@@ -37,16 +37,26 @@
             :key="day.date"
             :class="{
               'bg-light': !day.isCurrentMonth,
-              'text-light bg-info': day.isAnyEventSet > 8,
-              'text-light bg-warning': day.date === todayDate,
-              'text-light bg-secondary': day.date === selectedDate,
-              'non-clickable': !day.isCurrentMonth || day.date < todayDate,
-              subdued: day.date < todayDate,
+              'text-light bg-secondary': day.date === selectedDate && day.isCurrentMonth,
+              'current-day': day.date === todayDate && day.isCurrentMonth,
+              'non-clickable': !day.isCurrentMonth || (!isDateBooked(day.date) && day.date < todayDate),
+              subdued: day.date < todayDate && day.isCurrentMonth,
             }"
             class="day-cell"
-            @click="day.isCurrentMonth && day.date >= todayDate && dayClick(day.date.toString())"
+            @click="
+              () => {
+                if (day.isCurrentMonth) dayClick(day.date);
+              }
+            "
           >
-            {{ day.day }}
+            <div class="d-flex justify-content-between">
+              {{ day.day }}
+              <div
+                :class="{
+                  'dot-booked': isDateBooked(day.date) && day.isCurrentMonth,
+                }"
+              ></div>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -55,9 +65,15 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref, defineEmits } from "vue";
+  import { computed, ref, defineEmits, onMounted } from "vue";
+  import { VisitDto } from "@/models/VisitDto";
 
+  const props = defineProps<{ bookedVisits?: VisitDto[]; selectedDate?: string }>();
   const emit = defineEmits(["dayClick"]);
+
+  onMounted(() => {
+    selectedDate.value = props.selectedDate ?? new Date().toISOString().split("T")[0];
+  });
 
   const currentDate = ref(new Date());
   const selectedDate = ref<string | null>(null);
@@ -73,6 +89,10 @@
     emit("dayClick", date);
   }
 
+  function isDateBooked(date: string): boolean {
+    return props.bookedVisits?.some((visit) => visit.slot.split("T")[0] === date) ?? false;
+  }
+
   function getCalendarDays() {
     const startDay = new Date(year.value, month.value, 1).getDay();
 
@@ -84,7 +104,7 @@
         day: date.getDate(),
         date: `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`,
         isCurrentMonth: date.getMonth() === month.value,
-        isAnyEventSet: date.getMonth() === month.value ? Math.floor(Math.random() * 10) : 0,
+        isAnyEventSet: isDateBooked(`${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`),
       });
     }
 
@@ -126,9 +146,15 @@
     color: #999;
   }
 
-  .clicked {
-    background-color: #6c757d;
+  .current-day {
+    border: 2px solid orange;
+  }
+
+  .dot-booked {
+    height: 10px;
+    width: 10px;
+    background-color: #0dcaf0;
     border-radius: 50%;
-    border-color: #6c757d;
+    display: inline-block;
   }
 </style>

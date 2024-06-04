@@ -54,7 +54,7 @@
           class="btn btn-info text-light m-1 mt-2"
           data-bs-toggle="modal"
           data-bs-target="#modal"
-          @click="bookVisit(doctor, new Date(slot))"
+          @click="showModal(doctor, new Date(slot))"
         >
           {{ new Date(slot).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }}
         </div>
@@ -140,26 +140,29 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch, computed } from "vue";
+  import { ref, watch, computed, defineEmits } from "vue";
   import * as yup from "yup";
   import { useForm } from "vee-validate";
   import { AxiosError } from "axios";
 
-  import { FindDateDto } from "@/models/FindDateDto";
-  import { AvailableDateDto } from "@/models/AvailableDateDto";
+  import { findAvailableVisits, bookVisit } from "@/api/visitsApi";
+
   import SearchableSelect from "@/components/SearchableSelect.vue";
   import { MedicalSpecialties } from "@/enums/MedicalSpecialties";
-  import { findAvailableVisits } from "@/api/visitsApi";
+  import { FindDateDto } from "@/models/FindDateDto";
+  import { AvailableDateDto } from "@/models/AvailableDateDto";
   import { VisitDto } from "@/models/VisitDto";
   import { AvailableDateDoctorDto } from "@/models/AvailableDateDoctorDto";
 
   const props = defineProps<{ selectedDate: string | null }>();
+  const emit = defineEmits(["visitBooked"]);
 
   const errorMessage = ref("");
   const specializationError = ref("");
   const selectedSpecialty = ref("");
   const availableDates = ref<AvailableDateDto | null>(null);
   const modalVisible = ref<boolean>();
+
   const selectedDoctor = ref<AvailableDateDoctorDto>({
     email: "",
     firstName: "",
@@ -168,11 +171,15 @@
     phone: "",
     availableSlots: [],
   });
+
   const selectedDate = ref<VisitDto>({
     doctorEmail: "",
     slot: "",
     patientEmail: "",
     description: "",
+    doctorFirstName: "",
+    doctorLastName: "",
+    doctorSpecialization: "",
   });
 
   const findDate = ref<FindDateDto>({
@@ -242,10 +249,19 @@
     }
   });
 
-  const bookVisit = (doctor: AvailableDateDoctorDto, date: Date) => {
-    fillVisitDto(doctor, date);
-    fillSelectedDoctorDto(doctor);
-    showModal();
+  const bookSelectedVisit = async () => {
+    errorMessage.value = "";
+    try {
+      await bookVisit(selectedDate.value);
+      await findAvailableDate();
+      emit("visitBooked");
+    } catch (error) {
+      if (error instanceof AxiosError && error.response) {
+        errorMessage.value = error.response.data;
+      } else {
+        errorMessage.value = "An unexpected error occurred";
+      }
+    }
   };
 
   const fillFindDateDto = () => {
@@ -295,13 +311,15 @@
     }
   };
 
-  const showModal = () => {
+  const showModal = (doctor: AvailableDateDoctorDto, date: Date) => {
+    fillVisitDto(doctor, date);
+    fillSelectedDoctorDto(doctor);
     modalVisible.value = true;
-    console.log("Booking start: ", selectedDate.value);
   };
 
   const confirmBooking = () => {
-    console.log("Booking confirmed: ", selectedDate.value);
+    selectedDate.value.description = visitReason.value;
+    bookSelectedVisit();
   };
 </script>
 
