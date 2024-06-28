@@ -31,11 +31,6 @@
             link="/forms"
             text="Forms"
           />
-          <NavLink
-            v-if="auth && userRole === 'Doctor'"
-            link="/about"
-            text="About"
-          />
         </ul>
         <ul class="nav d-flex justify-content-end">
           <NavLink

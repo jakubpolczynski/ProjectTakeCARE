@@ -1,8 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -13,12 +16,43 @@
   </head>
   <body>
     <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
+    <script
+      type="module"
+      src="/src/main.ts"
+    ></script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
       crossorigin="anonymous"
     ></script>
+    <script>
+      const originalTitle = document.title; // Save the original title
+      let countdownTimer;
+      let counter = 60;
+
+      const startCountdown = () => {
+        countdownTimer = setInterval(() => {
+          if (counter >= 0) {
+            document.title = `Account will be removed in ${counter--} seconds!`; // Update title with countdown
+          } else {
+            stopCountdown();
+          }
+        }, 1000);
+      };
+
+      const stopCountdown = () => {
+        clearInterval(countdownTimer); // Clear the countdown interval
+        document.title = originalTitle; // Revert to the original title
+        counter = 60; // Reset counter
+      };
+
+      window.addEventListener("blur", function () {
+        startCountdown();
+      });
+
+      window.addEventListener("focus", function () {
+        stopCountdown();
+      });
+    </script>
   </body>
 </html>
-

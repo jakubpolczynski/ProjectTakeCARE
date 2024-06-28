@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TakeCare.Database.Data;
 
@@ -11,9 +12,11 @@ using TakeCare.Database.Data;
 namespace TakeCare.Database.Migrations
 {
     [DbContext(typeof(TakeCareDbContext))]
-    partial class TakeCareDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240628101113_VisitTableChange")]
+    partial class VisitTableChange
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -119,16 +122,11 @@ namespace TakeCare.Database.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("VisitId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("DoctorId");
 
                     b.HasIndex("PatientId");
-
-                    b.HasIndex("VisitId");
 
                     b.ToTable("ExaminationTable");
                 });
@@ -259,17 +257,9 @@ namespace TakeCare.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TakeCare.Database.Entity.Visit", "Visit")
-                        .WithMany()
-                        .HasForeignKey("VisitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Doctor");
 
                     b.Navigation("Patient");
-
-                    b.Navigation("Visit");
                 });
 
             modelBuilder.Entity("TakeCare.Database.Entity.Patient", b =>

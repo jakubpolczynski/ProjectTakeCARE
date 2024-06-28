@@ -96,7 +96,8 @@ namespace TakeCare.Application.Services
 				DoctorId = doctor.Id,
 				PatientId = patient.Id,
 				Date = visit.Slot,
-				Description = visit.Description
+				Description = visit.Description,
+				IsVisitExecuted = visit.IsVisitExecuted
 			};
 
 			_context.VisitTable!.Add(newVisit);
@@ -128,7 +129,8 @@ namespace TakeCare.Application.Services
 
 			return visitDtos ?? new List<VisitDto>();
 		}
-		public async Task<List<VisitDto>> GetDoctorVisits(string doctorEmail) {
+		public async Task<List<VisitDto>> GetDoctorVisits(string doctorEmail)
+		{
 			if (string.IsNullOrWhiteSpace(doctorEmail))
 			{
 				throw new ArgumentException("Doctor email is required.");
@@ -141,7 +143,8 @@ namespace TakeCare.Application.Services
 
 			var visitDtos = doctor.Visits?.Select(v => new VisitDto
 			{
-				DoctorEmail = doctor.Email ,
+				Id = v.Id,
+				DoctorEmail = doctor.Email,
 				Slot = v.Date,
 				PatientEmail = v.Patient!.Email,
 				Description = v.Description,
@@ -167,10 +170,41 @@ namespace TakeCare.Application.Services
 				.FirstOrDefaultAsync(
 					v => v.DoctorId == doctor!.Id && v.Date == visit.Slot && v.PatientId == patient!.Id
 				) ?? throw new ArgumentException("Booked visit not found.");
-			
+
 			_context.VisitTable!.Remove(bookedVisit);
 			await _context.SaveChangesAsync();
 		}
 
+		public async Task<VisitDto> GetVisit(int id)
+		{
+			if (id == 0)
+			{
+				throw new ArgumentNullException(nameof(id));
+			}
+
+			var visitFromDatabase = await _context.VisitTable!
+				.Include(v => v.Doctor)
+				.Include(v => v.Patient)
+				.FirstOrDefaultAsync(v => v.Id == id) ?? throw new ArgumentException("Visit not found.");
+
+			if (visitFromDatabase.Doctor == null || visitFromDatabase.Patient == null)
+			{
+				throw new ArgumentException("The visit's associated doctor or patient information is missing.");
+			}
+
+			var visit = new VisitDto()
+			{
+				Id = visitFromDatabase.Id,
+				Slot = visitFromDatabase.Date,
+				Description = visitFromDatabase.Description,
+				PatientFirstName = visitFromDatabase.Patient.FirstName,
+				PatientLastName = visitFromDatabase.Patient.LastName,
+				DoctorFirstName = visitFromDatabase.Doctor.FirstName,
+				DoctorLastName = visitFromDatabase.Doctor.LastName,
+				DoctorSpecialization = visitFromDatabase.Doctor.Specialization,
+			};
+
+			return visit;
+		}
 	}
 }

@@ -24,7 +24,7 @@
             <div class="d-flex w-100">
               <p class="mb-1 mt-2 flex-grow-1">Reason: {{ bookedVisit.description }}</p>
               <button
-                v-if="actualRole === 'Doctor'"
+                v-if="actualRole === 'Doctor' && bookedVisit.isVisitExecuted === false"
                 class="btn btn-success me-2"
                 :class="{
                   disabled: formattedSlot(bookedVisit).date < new Date().toISOString().split('T')[0],
@@ -32,6 +32,13 @@
                 @click="startExamination(bookedVisit)"
               >
                 Start examination
+              </button>
+              <button
+                v-if="bookedVisit.isVisitExecuted === true"
+                class="btn btn-success me-2"
+                @click="showExamination(bookedVisit)"
+              >
+                Show examination
               </button>
               <button
                 class="btn btn-danger"
@@ -57,6 +64,9 @@
   import { VisitDto } from "@/models/VisitDto";
   import { deleteBookedVisit } from "@/api/visitsApi";
   import { AxiosError } from "axios";
+  import { useRouter } from "vue-router";
+
+  const router = useRouter();
 
   const emit = defineEmits(["visitCancelled"]);
   const props = defineProps<{ bookedVisits?: VisitDto[]; selectedDate?: string | null }>();
@@ -99,8 +109,12 @@
     }
   };
 
-  const startExamination = (bookedVisit: VisitDto) => {
-    console.log("Start examination", bookedVisit);
+  const startExamination = async (bookedVisit: VisitDto) => {
+    await router.push({ name: "ongoingexamination", params: { visitId: bookedVisit.id.toString() } });
+  };
+
+  const showExamination = (bookedVisit: VisitDto) => {
+    console.log("Show examination", bookedVisit);
   };
 </script>
 <style scoped>

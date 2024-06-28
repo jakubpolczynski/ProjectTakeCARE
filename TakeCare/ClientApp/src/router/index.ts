@@ -1,13 +1,13 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { store } from "@/store/store";
 import HomeView from "@/views/HomeView.vue";
-import AboutView from "@/views/AboutView.vue";
 import FormsView from "@/views/FormsView.vue";
 import CreateAccountView from "@/views/CreateAccountView.vue";
 import LoginView from "@/views/LoginView.vue";
 import PatientsView from "@/views/PatientsView.vue";
 import DoctorVisitsView from "@/views/DoctorVisitsView.vue";
 import PatientVisitsView from "@/views/PatientVisitsView.vue";
+import OngoingExaminationView from "@/views/OngoingExaminationView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -28,12 +28,6 @@ const router = createRouter({
       path: "/createaccount",
       name: "createaccount",
       component: CreateAccountView,
-    },
-    {
-      path: "/about",
-      name: "about",
-      component: AboutView,
-      meta: { requiresAuth: true },
     },
     {
       path: "/doctorvisits",
@@ -58,6 +52,12 @@ const router = createRouter({
       name: "patientvisits",
       component: PatientVisitsView,
       meta: { requiresAuth: true, requiresPatient: true },
+    },
+    {
+      path: "/ongoingexamination/:visitId",
+      name: "ongoingexamination",
+      component: OngoingExaminationView,
+      meta: { requiresAuth: true, requiresDoctor: true },
     },
   ],
 });

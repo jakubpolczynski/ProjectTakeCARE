@@ -10,6 +10,7 @@ namespace TakeCare.Application.Interfaces
 		public Task<List<VisitDto>> GetPatientVisits(string patientEmail);
 		public Task<List<VisitDto>> GetDoctorVisits(string doctorEmail);
 		public Task DeleteBookedVisit(VisitDto visit);
+		public Task<VisitDto> GetVisit(int id);
 
 	}
 }
