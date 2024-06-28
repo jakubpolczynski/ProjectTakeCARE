@@ -1,5 +1,4 @@
 import { LoginDto } from "@/models/LoginDto";
-import { UserDto } from "@/models/UserDto";
 import axios from "axios";
 
 const apiClient = axios.create({

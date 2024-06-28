@@ -145,5 +145,16 @@ namespace TakeCare.Controllers
 				return StatusCode(500, $"Internal server error: {ex.Message}");
 			}
 		}
+
+		[HttpGet("GetVisit")]
+		public async Task<VisitDto> GetVisit(int id)
+		{
+			if(id == 0)
+			{
+				throw new ArgumentNullException(nameof(id));
+			}
+
+			return await _visitService!.GetVisit(id);
+		}
 	}
 }

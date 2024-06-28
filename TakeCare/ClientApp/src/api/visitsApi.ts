@@ -30,3 +30,7 @@ export const getDoctorVisits = async (doctorEmail: string) => {
 export const deleteBookedVisit = async (data: VisitDto) => {
   return await apiClient.post(`/Visit/DeleteBookedVisit`, data);
 };
+
+export const getVisit = async (visitId: number) => {
+  return await apiClient.get(`/Visit/GetVisit?id=${visitId}`);
+};

@@ -11,6 +11,8 @@ namespace TakeCare.Database.Entity
 		[Required]
 		public DateTime Date { get; set; }
 		[Required]
+		public bool IsVisitExecuted { get; set; } = false;
+		[Required]
 		public string Description { get; set; } = string.Empty;
 		[Required]
 		[ForeignKey("Patient")]

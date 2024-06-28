@@ -26,5 +26,8 @@ namespace TakeCare.Database.Entity
 		[ForeignKey("Doctor")]
 		public int DoctorId { get; set; }
 		public virtual Doctor? Doctor { get; set; }
+		[ForeignKey("Visit")]
+		public int VisitId { get; set; }
+		public virtual Visit? Visit { get; set; }
 	}
 }
