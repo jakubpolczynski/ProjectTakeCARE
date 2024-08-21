@@ -140,7 +140,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch, computed, defineEmits } from "vue";
+  import { ref, watch, computed } from "vue";
   import * as yup from "yup";
   import { useForm } from "vee-validate";
   import { AxiosError } from "axios";
@@ -176,10 +176,14 @@
     doctorEmail: "",
     slot: "",
     patientEmail: "",
-    description: "",
+    reason: "",
     doctorFirstName: "",
     doctorLastName: "",
     doctorSpecialization: "",
+    id: 0,
+    isVisitExecuted: false,
+    patientFirstName: "",
+    patientLastName: "",
   });
 
   const findDate = ref<FindDateDto>({
@@ -216,6 +220,7 @@
     (newDate) => {
       if (newDate) {
         date.value = newDate;
+        findAvailableDate();
       }
     }
   );
@@ -318,7 +323,7 @@
   };
 
   const confirmBooking = () => {
-    selectedDate.value.description = visitReason.value;
+    selectedDate.value.reason = visitReason.value;
     bookSelectedVisit();
   };
 </script>

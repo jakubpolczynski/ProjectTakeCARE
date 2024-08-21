@@ -156,5 +156,17 @@ namespace TakeCare.Controllers
 
 			return await _visitService!.GetVisit(id);
 		}
+
+		[HttpGet("GetPatientExecutedVisits")]
+		public async Task<List<VisitDto>> GetPatientExecutedVisits(string patientEmail)
+		{
+			return await _visitService!.GetPatientExecutedVisits(patientEmail);
+		}
+
+		[HttpGet("GetDoctorExecutedVisits")]
+		public async Task<List<VisitDto>> GetDoctorExecutedVisits(string doctorEmail)
+		{
+			return await _visitService!.GetDoctorExecutedVisits(doctorEmail);
+		}
 	}
 }

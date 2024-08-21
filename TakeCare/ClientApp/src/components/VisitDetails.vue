@@ -22,7 +22,7 @@
               <small>{{ formattedSlot(bookedVisit).date }} {{ formattedSlot(bookedVisit).time }}</small>
             </div>
             <div class="d-flex w-100">
-              <p class="mb-1 mt-2 flex-grow-1">Reason: {{ bookedVisit.description }}</p>
+              <p class="mb-1 mt-2 flex-grow-1">Reason: {{ bookedVisit.reason }}</p>
               <button
                 v-if="actualRole === 'Doctor' && bookedVisit.isVisitExecuted === false"
                 class="btn btn-success me-2"
@@ -35,13 +35,14 @@
               </button>
               <button
                 v-if="bookedVisit.isVisitExecuted === true"
-                class="btn btn-success me-2"
+                class="btn btn-success"
                 @click="showExamination(bookedVisit)"
               >
                 Show examination
               </button>
               <button
-                class="btn btn-danger"
+                v-if="bookedVisit.isVisitExecuted === false"
+                class="btn btn-danger ms-2"
                 :class="{
                   disabled: formattedSlot(bookedVisit).date < new Date().toISOString().split('T')[0],
                 }"
@@ -96,7 +97,6 @@
   });
 
   const cancelVisit = async (bookedVisit: VisitDto) => {
-    console.log("Cancel visit", bookedVisit);
     try {
       await deleteBookedVisit(bookedVisit);
       emit("visitCancelled");
@@ -114,7 +114,11 @@
   };
 
   const showExamination = (bookedVisit: VisitDto) => {
-    console.log("Show examination", bookedVisit);
+    if (actualRole.value === "Doctor") {
+      router.push({ name: "doctorExaminations" });
+    } else {
+      router.push({ name: "patientExaminations" });
+    }
   };
 </script>
 <style scoped>

@@ -7,7 +7,10 @@ import LoginView from "@/views/LoginView.vue";
 import PatientsView from "@/views/PatientsView.vue";
 import DoctorVisitsView from "@/views/DoctorVisitsView.vue";
 import PatientVisitsView from "@/views/PatientVisitsView.vue";
+import PatientExaminationView from "@/views/PatientExaminationView.vue";
 import OngoingExaminationView from "@/views/OngoingExaminationView.vue";
+import DoctorExaminationView from "@/views/DoctorExaminationView.vue";
+import PdfPreview from "@/modals/PdfPreviewModal.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -57,6 +60,18 @@ const router = createRouter({
       path: "/ongoingexamination/:visitId",
       name: "ongoingexamination",
       component: OngoingExaminationView,
+      meta: { requiresAuth: true, requiresDoctor: true },
+    },
+    {
+      path: "/patientExaminations",
+      name: "patientExaminations",
+      component: PatientExaminationView,
+      meta: { requiresAuth: true, requiresPatient: true },
+    },
+    {
+      path: "/doctorExaminations",
+      name: "doctorExaminations",
+      component: DoctorExaminationView,
       meta: { requiresAuth: true, requiresDoctor: true },
     },
   ],

@@ -34,3 +34,11 @@ export const deleteBookedVisit = async (data: VisitDto) => {
 export const getVisit = async (visitId: number) => {
   return await apiClient.get(`/Visit/GetVisit?id=${visitId}`);
 };
+
+export const getPatientExecutedVisits = async (patientEmail: string) => {
+  return await apiClient.get(`/Visit/GetPatientExecutedVisits?patientEmail=${patientEmail}`);
+};
+
+export const getDoctorExecutedVisits = async (doctorEmail: string) => {
+  return await apiClient.get(`/Visit/GetDoctorExecutedVisits?doctorEmail=${doctorEmail}`);
+};

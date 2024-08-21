@@ -10,7 +10,12 @@
       <div>{{ patient.phone }}</div>
     </div>
     <div>
-      <button class="btn btn-info text-white mt-1">Show executions</button>
+      <button
+        class="btn btn-info text-white mt-1"
+        @click="showExamination()"
+      >
+        Show examinations
+      </button>
     </div>
   </div>
 </template>
@@ -18,12 +23,18 @@
   import { getDoctorPatients } from "@/api/patientsApi";
   import { PatientDto } from "@/models/PatientDto";
   import { ref, onMounted } from "vue";
+  import { useRouter } from "vue-router";
+
+  const router = useRouter();
 
   const patients = ref<PatientDto[]>();
 
   onMounted(async () => {
     patients.value = (await getDoctorPatients(localStorage.getItem("email"))).data;
-    console.log(patients.value[0]);
   });
+
+  const showExamination = async () => {
+    await router.push({ name: "doctorExaminations" });
+  };
 </script>
 <style scoped lang="scss"></style>
