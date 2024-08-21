@@ -13,7 +13,8 @@ namespace TakeCare.Application.Models
 		[Required]
 		public string PatientEmail { get; set; } = string.Empty;
 		[Required]
-		public string Description { get; set; } = string.Empty;
+		public string Reason { get; set; } = string.Empty;
+		[Required]
 		public bool IsVisitExecuted { get; set; } = false;
 		public string DoctorFirstName { get; set; } = string.Empty;
 		public string DoctorLastName { get; set; } = string.Empty;

@@ -96,7 +96,7 @@ namespace TakeCare.Application.Services
 				DoctorId = doctor.Id,
 				PatientId = patient.Id,
 				Date = visit.Slot,
-				Description = visit.Description,
+				Description = visit.Reason,
 				IsVisitExecuted = visit.IsVisitExecuted
 			};
 
@@ -118,10 +118,12 @@ namespace TakeCare.Application.Services
 
 			var visitDtos = patient.Visits?.Select(v => new VisitDto
 			{
+				Id = v.Id,
 				DoctorEmail = v.Doctor!.Email,
 				Slot = v.Date,
 				PatientEmail = patient.Email,
-				Description = v.Description,
+				Reason = v.Description,
+				IsVisitExecuted = v.IsVisitExecuted,
 				DoctorFirstName = v.Doctor.FirstName,
 				DoctorLastName = v.Doctor.LastName,
 				DoctorSpecialization = v.Doctor.Specialization
@@ -147,7 +149,8 @@ namespace TakeCare.Application.Services
 				DoctorEmail = doctor.Email,
 				Slot = v.Date,
 				PatientEmail = v.Patient!.Email,
-				Description = v.Description,
+				Reason = v.Description,
+				IsVisitExecuted = v.IsVisitExecuted,
 				DoctorFirstName = doctor.FirstName,
 				DoctorLastName = doctor.LastName,
 				DoctorSpecialization = doctor.Specialization
@@ -196,15 +199,93 @@ namespace TakeCare.Application.Services
 			{
 				Id = visitFromDatabase.Id,
 				Slot = visitFromDatabase.Date,
-				Description = visitFromDatabase.Description,
+				Reason = visitFromDatabase.Description,
 				PatientFirstName = visitFromDatabase.Patient.FirstName,
 				PatientLastName = visitFromDatabase.Patient.LastName,
+				PatientEmail = visitFromDatabase.Patient.Email,
 				DoctorFirstName = visitFromDatabase.Doctor.FirstName,
 				DoctorLastName = visitFromDatabase.Doctor.LastName,
+				DoctorEmail	= visitFromDatabase.Doctor.Email,
 				DoctorSpecialization = visitFromDatabase.Doctor.Specialization,
 			};
 
 			return visit;
+		}
+
+		public async Task<List<VisitDto>> GetPatientExecutedVisits(string patientEmail)
+		{
+			if (string.IsNullOrWhiteSpace(patientEmail))
+			{
+				throw new ArgumentException("Patient email is required.");
+			}
+
+			try
+			{
+				var visits = await _context.VisitTable!
+					.Include(v => v.Patient)
+					.Include(v => v.Doctor)
+					.Where(v => v.IsVisitExecuted == true && v.Patient!.Email == patientEmail)
+					.ToListAsync();
+
+				var visitDtos = visits.Select(v => new VisitDto
+				{
+					Id = v.Id,
+					PatientEmail = v.Patient!.Email,
+					DoctorEmail = v.Doctor!.Email,
+					Slot = v.Date,
+					Reason = v.Description,
+					IsVisitExecuted = v.IsVisitExecuted,
+					DoctorFirstName = v.Doctor.FirstName,
+					DoctorLastName = v.Doctor.LastName,
+					DoctorSpecialization = v.Doctor.Specialization,
+					PatientFirstName = v.Patient.FirstName,
+					PatientLastName = v.Patient.LastName
+				}).ToList();
+
+				return visitDtos;
+			}
+			catch (Exception ex)
+			{
+				throw new Exception("An error occurred while fetching the patient's executed visits.", ex);
+			}
+		}
+
+		public async Task<List<VisitDto>> GetDoctorExecutedVisits(string doctorEmail)
+		{
+			if (string.IsNullOrWhiteSpace(doctorEmail))
+			{
+				throw new ArgumentException("Doctor email is required.");
+			}
+
+			try
+			{
+				var visits = await _context.VisitTable!
+					.Include(v => v.Patient)
+					.Include(v => v.Doctor)
+					.Where(v => v.IsVisitExecuted == true && v.Doctor!.Email == doctorEmail)
+					.ToListAsync();
+
+				var visitDtos = visits.Select(v => new VisitDto
+				{
+					Id = v.Id,
+					PatientEmail = v.Patient!.Email,
+					DoctorEmail = v.Doctor!.Email,
+					Slot = v.Date,
+					Reason = v.Description,
+					IsVisitExecuted = v.IsVisitExecuted,
+					DoctorFirstName = v.Doctor.FirstName,
+					DoctorLastName = v.Doctor.LastName,
+					DoctorSpecialization = v.Doctor.Specialization,
+					PatientFirstName = v.Patient.FirstName,
+					PatientLastName = v.Patient.LastName
+				}).ToList();
+
+				return visitDtos;
+			}
+			catch (Exception ex)
+			{
+				throw new Exception("An error occurred while fetching the doctor's executed visits.", ex);
+			}
 		}
 	}
 }

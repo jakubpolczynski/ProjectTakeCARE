@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref, defineEmits, onMounted } from "vue";
+  import { computed, ref, onMounted } from "vue";
   import { VisitDto } from "@/models/VisitDto";
 
   const props = defineProps<{ bookedVisits?: VisitDto[]; selectedDate?: string }>();

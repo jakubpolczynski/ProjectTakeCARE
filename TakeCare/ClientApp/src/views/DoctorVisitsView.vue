@@ -2,11 +2,11 @@
   <h1>Visits</h1>
   <Calendar
     @dayClick="handleDayClick"
-    :bookedVisits="patientVisits"
+    :bookedVisits="doctorVisits"
     :selectedDate="selectedDate"
   ></Calendar>
   <VisitDetails
-    :bookedVisits="patientVisits"
+    :bookedVisits="doctorVisits"
     :selectedDate="selectedDate"
     @visitCancelled="handleVisitChange"
   ></VisitDetails>
@@ -21,11 +21,11 @@
 
   import { VisitDto } from "@/models/VisitDto";
 
-  const patientVisits = ref<VisitDto[]>();
+  const doctorVisits = ref<VisitDto[]>();
   const selectedDate = ref<string | null>(null);
 
   onMounted(async () => {
-    patientVisits.value = (await getDoctorVisits(localStorage.getItem("email"))).data;
+    doctorVisits.value = (await getDoctorVisits(localStorage.getItem("email"))).data;
     selectedDate.value = new Date().toISOString().split("T")[0];
   });
 
@@ -34,7 +34,7 @@
   }
 
   const handleVisitChange = async () => {
-    patientVisits.value = (await getDoctorVisits(localStorage.getItem("email"))).data;
+    doctorVisits.value = (await getDoctorVisits(localStorage.getItem("email"))).data;
   };
 </script>
 <style scoped lang="scss"></style>
