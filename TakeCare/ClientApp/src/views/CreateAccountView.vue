@@ -11,12 +11,21 @@
       </button>
       <button
         @click="createDoctor"
-        class="btn btn-primary col-2"
+        class="btn btn-primary me-3 col-2"
         :class="[isDoctorCreating ? 'disabled btn-secondary' : '']"
       >
         Doctor
       </button>
+      <button
+        @click="createReceptionist"
+        class="btn btn-primary me-3 col-2"
+        :class="[isReceptionistCreating ? 'disabled btn-secondary' : '']"
+      >
+        Receptionist
+      </button>
     </div>
+
+    <!-- Doctor Form -->
     <div v-if="isDoctorCreating">
       <span>Create doctor account</span>
       <form
@@ -102,6 +111,8 @@
         <button class="btn btn-success mt-3">Create</button>
       </form>
     </div>
+
+    <!-- Patient Form -->
     <div v-if="isPatientCreating">
       <span>Create patient account</span>
       <form
@@ -232,26 +243,101 @@
         </button>
       </form>
     </div>
+
+    <!-- Receptionist Form -->
+    <div v-if="isReceptionistCreating">
+      <span>Create receptionist account</span>
+      <form
+        class="form-group"
+        @submit="createReceptionistAccount"
+      >
+        <div class="row mt-3">
+          <div class="col-3">
+            <label for="receptionist-name">First name</label>
+            <input
+              id="receptionist-name"
+              v-model="receptionistFirstName"
+              v-bind="receptionistFirstNameAttrs"
+              class="form-control"
+              type="text"
+              placeholder="Name"
+            />
+            <span class="validation-error">{{ errors.receptionistFirstName }}</span>
+          </div>
+          <div class="col-3">
+            <label for="receptionist-surname">Last name</label>
+            <input
+              id="receptionist-surname"
+              v-model="receptionistLastName"
+              v-bind="receptionistLastNameAttrs"
+              class="form-control"
+              type="text"
+              placeholder="Surname"
+            />
+            <span class="validation-error">{{ errors.receptionistLastName }}</span>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-3">
+            <label for="receptionist-email">Email</label>
+            <input
+              id="receptionist-email"
+              v-model="receptionistEmail"
+              v-bind="receptionistEmailAttrs"
+              class="form-control"
+              type="email"
+              placeholder="Email"
+            />
+            <span class="validation-error">{{ errors.receptionistEmail }}</span>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-3">
+            <label for="receptionist-password">Password</label>
+            <input
+              id="receptionist-password"
+              v-model="receptionistPassword"
+              v-bind="receptionistPasswordAttrs"
+              class="form-control"
+              type="password"
+              placeholder="Password"
+            />
+            <span class="validation-error">{{ errors.receptionistPassword }}</span>
+          </div>
+        </div>
+        <button
+          type="submit"
+          class="btn btn-success mt-3"
+        >
+          Create
+        </button>
+      </form>
+    </div>
     <div class="request-error">{{ errorMessage }}</div>
   </div>
 </template>
 
 <script setup lang="ts">
   import { ref, computed } from "vue";
-  import { addDoctor, addPatient } from "@/api/userApi";
-  import { DoctorDto } from "@/models/DoctorDto";
-  import { PatientDto } from "@/models/PatientDto";
   import * as yup from "yup";
   import { useForm } from "vee-validate";
   import { useRouter } from "vue-router";
   import { AxiosError } from "axios";
-  import SearchableSelect from "@/components/SearchableSelect.vue";
+
+  import { addDoctor, addPatient, addReceptionist } from "@/api/userApi";
+
+  import { DoctorDto } from "@/models/DoctorDto";
+  import { PatientDto } from "@/models/PatientDto";
+  import { ReceptionistDto } from "@/models/ReceptionistDto";
   import { MedicalSpecialties } from "@/enums/MedicalSpecialties";
+
+  import SearchableSelect from "@/components/SearchableSelect.vue";
 
   const router = useRouter();
 
   const isDoctorCreating = ref(false);
   const isPatientCreating = ref(false);
+  const isReceptionistCreating = ref(false);
   const errorMessage = ref("");
   const specializationError = ref("");
   const selectedSpecialty = ref("");
@@ -267,6 +353,14 @@
     postalCode: "",
     password: "",
     role: "Patient",
+  });
+
+  const receptionist = ref<ReceptionistDto>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    role: "Receptionist",
   });
 
   const doctor = ref<DoctorDto>({
@@ -327,8 +421,27 @@
       .required("Password is required"),
   });
 
+  const receptionistSchema = yup.object({
+    receptionistFirstName: yup.string().max(32, "First name length exceeded").required("First name is required"),
+    receptionistLastName: yup.string().max(64, "Last name length exceeded").required("Last name is required"),
+    receptionistEmail: yup.string().email("Must be a valid email").required("Email is required"),
+    receptionistPassword: yup
+      .string()
+      .matches(
+        /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
+        "Password must contain at least one lowercase letter, one uppercase letter, one digit, one special character, and be at least 8 characters long"
+      )
+      .required("Password is required"),
+  });
+
   const validationSchema = computed(() => {
-    return isDoctorCreating.value ? doctorSchema : patientSchema;
+    if (isDoctorCreating.value) {
+      return doctorSchema;
+    } else if (isPatientCreating.value) {
+      return patientSchema;
+    } else if (isReceptionistCreating.value) {
+      return receptionistSchema;
+    }
   });
 
   const { errors, handleSubmit, defineField, resetForm } = useForm({
@@ -351,8 +464,14 @@
   const [patientPhone, patientPhoneAttrs] = defineField("patientPhone");
   const [patientPassword, patientPasswordAttrs] = defineField("patientPassword");
 
+  const [receptionistFirstName, receptionistFirstNameAttrs] = defineField("receptionistFirstName");
+  const [receptionistLastName, receptionistLastNameAttrs] = defineField("receptionistLastName");
+  const [receptionistEmail, receptionistEmailAttrs] = defineField("receptionistEmail");
+  const [receptionistPassword, receptionistPasswordAttrs] = defineField("receptionistPassword");
+
   const createDoctor = () => {
     errorMessage.value = "";
+    isReceptionistCreating.value = false;
     isPatientCreating.value = false;
     isDoctorCreating.value = true;
     resetForm();
@@ -360,12 +479,21 @@
 
   const createPatient = () => {
     errorMessage.value = "";
+    isReceptionistCreating.value = false;
     isDoctorCreating.value = false;
     isPatientCreating.value = true;
     resetForm();
   };
 
-  const createPatientAccount = handleSubmit(async (values) => {
+  const createReceptionist = () => {
+    errorMessage.value = "";
+    isReceptionistCreating.value = true;
+    isPatientCreating.value = false;
+    isDoctorCreating.value = false;
+    resetForm();
+  };
+
+  const createPatientAccount = handleSubmit(async () => {
     errorMessage.value = "";
     fillPatientDto();
     try {
@@ -378,7 +506,7 @@
     }
   });
 
-  const createDoctorAccount = handleSubmit(async (values) => {
+  const createDoctorAccount = handleSubmit(async () => {
     errorMessage.value = "";
     if (checkSpecialty()) {
       fillDoctorDto();
@@ -392,6 +520,27 @@
       }
     }
   });
+
+  const createReceptionistAccount = handleSubmit(async () => {
+    errorMessage.value = "";
+    fillReceptionistDto();
+    try {
+      await addReceptionist(receptionist.value);
+      await router.push("/login");
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        errorMessage.value = error.response.data;
+      }
+    }
+  });
+
+  const fillReceptionistDto = () => {
+    receptionist.value.firstName = receptionistFirstName.value;
+    receptionist.value.lastName = receptionistLastName.value;
+    receptionist.value.email = receptionistEmail.value;
+    receptionist.value.password = receptionistPassword.value;
+    receptionist.value.role = "Receptionist";
+  };
 
   const fillPatientDto = () => {
     patient.value.firstName = patientFirstName.value;

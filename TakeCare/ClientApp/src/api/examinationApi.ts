@@ -28,6 +28,9 @@ export const addExamination = async (examination: ExaminationDto, formData: Form
   formData.append("doctorEmail", examination.doctorEmail);
   formData.append("patientEmail", examination.patientEmail);
   formData.append("visitId", examination.visitId.toString());
+  examination.images.forEach((image) => {
+    formData.append("images", image);
+  });
 
   return await apiClient.post("/Examination/AddExamination", formData, {
     headers: {

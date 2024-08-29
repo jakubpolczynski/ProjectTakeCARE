@@ -126,7 +126,9 @@ namespace TakeCare.Application.Services
 				IsVisitExecuted = v.IsVisitExecuted,
 				DoctorFirstName = v.Doctor.FirstName,
 				DoctorLastName = v.Doctor.LastName,
-				DoctorSpecialization = v.Doctor.Specialization
+				DoctorSpecialization = v.Doctor.Specialization,
+				PatientFirstName = v.Patient!.FirstName,
+				PatientLastName = v.Patient.LastName
 			}).ToList();
 
 			return visitDtos ?? new List<VisitDto>();
@@ -153,7 +155,9 @@ namespace TakeCare.Application.Services
 				IsVisitExecuted = v.IsVisitExecuted,
 				DoctorFirstName = doctor.FirstName,
 				DoctorLastName = doctor.LastName,
-				DoctorSpecialization = doctor.Specialization
+				DoctorSpecialization = doctor.Specialization,
+				PatientFirstName = v.Patient!.FirstName,
+				PatientLastName = v.Patient.LastName
 			}).ToList();
 
 			return visitDtos ?? new List<VisitDto>();

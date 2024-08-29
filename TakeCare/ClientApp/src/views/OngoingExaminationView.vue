@@ -80,8 +80,41 @@
             ></textarea>
             <div class="validation-error">{{ errors.result }}</div>
           </div>
-          <div class="col-6 mt-4"></div>
-          <div class="col-6 mt-4 d-flex justify-content-end">
+          <div class="col-12 mt-4">
+            <label
+              for="image"
+              class="form-label"
+              >Upload Images</label
+            >
+            <input
+              type="file"
+              id="image"
+              name="image"
+              class="form-control"
+              @change="handleImageUpload"
+              multiple
+              accept=".jpg, .jpeg, .png"
+            />
+            <div class="validation-error">{{ errorMessage }}</div>
+            <div
+              v-if="imagePreviews.length > 0"
+              class="mt-2"
+            >
+              <h6>Image Previews:</h6>
+              <div
+                v-for="(image, index) in imagePreviews"
+                :key="index"
+                class="mb-2"
+              >
+                <img
+                  :src="image"
+                  alt="Image Preview"
+                  class="img-thumbnail"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="col-12 mt-4 d-flex justify-content-end">
             <button
               class="btn btn-primary me-2"
               @click="save"
@@ -116,6 +149,7 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
   import { ref, onMounted, nextTick } from "vue";
   import * as yup from "yup";
@@ -141,10 +175,15 @@
   const errorMessage = ref("");
   const examination = ref<ExaminationDto>();
   const executedVisit = ref<ExecutedVisitDto>();
-  const previewVisible = ref<boolean>();
+  const previewVisible = ref<boolean>(false);
+  const imageFiles = ref<File[]>([]);
+  const imagePreviews = ref<string[]>([]);
+  const base64Images = ref<string[]>([]);
+
   interface ExecutedVisitDto {
     examination: ExaminationDto;
     visit: VisitDto;
+    imagePreviews?: string[];
   }
 
   onMounted(async () => {
@@ -186,11 +225,58 @@
     }
   };
 
+  // Function to convert image to Base64
+  const convertImageToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        resolve(reader.result as string);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageUpload = async (event: Event) => {
+    const files = (event.target as HTMLInputElement).files;
+    const validTypes = ["image/jpeg", "image/png"]; // Allowed file types
+    const errorMessages: string[] = [];
+
+    if (files) {
+      const selectedFiles = Array.from(files);
+
+      // Filter out valid image files and generate error messages for invalid ones
+      const validFiles = selectedFiles.filter((file) => {
+        if (!validTypes.includes(file.type)) {
+          errorMessages.push(`${file.name} is not a valid image file. Only JPG and PNG are allowed.`);
+          return false;
+        }
+        return true;
+      });
+
+      // Set the valid image files
+      imageFiles.value = validFiles;
+
+      // Convert images to Base64 and set previews
+      imagePreviews.value = validFiles.map((file) => URL.createObjectURL(file));
+      base64Images.value = await Promise.all(validFiles.map((file) => convertImageToBase64(file)));
+
+      // Display error messages if there are invalid files
+      if (errorMessages.length > 0) {
+        errorMessage.value = errorMessages.join(" ");
+      } else {
+        errorMessage.value = "";
+      }
+    }
+  };
+
   const fillExecutedVisit = () => {
     executedVisit.value = {
       examination: examination.value,
       visit: visit.value,
+      imagePreviews: base64Images.value,
     };
+    console.log(executedVisit.value);
   };
 
   const preview = handleSubmit(async (values) => {
@@ -210,9 +296,12 @@
     if (modalBodyElement) {
       const pdfBlob = await html2pdf().from(modalBodyElement).save().outputPdf("blob");
 
-      // Tworzenie FormData i dodanie pliku PDF
       const formData = new FormData();
       formData.append("file", pdfBlob, `Examination-${examination.value.id}.pdf`);
+
+      imageFiles.value.forEach((file, index) => {
+        formData.append(`image_${index}`, file);
+      });
 
       return formData;
     } else {
@@ -259,6 +348,7 @@
       console.error("Modal element not found");
     }
   };
+
   const showModal = () => {
     const modalElement = document.getElementById("modal1");
     if (modalElement) {
@@ -281,6 +371,7 @@
         doctorEmail: visit.value.doctorEmail || "",
         patientEmail: visit.value.patientEmail || "",
         visitId: visit.value.id,
+        images: base64Images.value,
       };
     } else {
       errorMessage.value = "Visit details are missing, cannot save examination.";
@@ -299,6 +390,7 @@
     return { date: "", time: "" };
   };
 </script>
+
 <style scoped>
   .validation-error {
     color: red;

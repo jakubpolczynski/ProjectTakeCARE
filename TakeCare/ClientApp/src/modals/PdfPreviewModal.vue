@@ -53,6 +53,25 @@
                 <p><strong>Reason: </strong>{{ props.executedVisit.visit.reason }}</p>
                 <p><strong>Date: </strong>{{ formattedSlot(props.executedVisit.visit.slot).date }} {{ formattedSlot(props.executedVisit.visit.slot).time }}</p>
               </div>
+              <div class="col-12">
+                <h4 class="text-primary">Uploaded Images</h4>
+                <div v-if="props.executedVisit.imagePreviews?.length > 0">
+                  <div
+                    v-for="(image, index) in props.executedVisit.imagePreviews"
+                    :key="index"
+                    class="mb-3"
+                  >
+                    <img
+                      :src="image"
+                      alt="Uploaded Image"
+                      class="rounded img-fluid"
+                    />
+                  </div>
+                </div>
+                <div v-else>
+                  <p>No images uploaded.</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -61,15 +80,17 @@
   </div>
 </template>
 <script setup lang="ts">
+  import { onMounted, ref } from "vue";
   import { ExaminationDto } from "@/models/ExaminationDto";
   import { VisitDto } from "@/models/VisitDto";
-  import { onMounted, ref } from "vue";
 
   const props = defineProps<{ executedVisit: ExecutedVisitDto }>();
+  console.log(props);
 
   interface ExecutedVisitDto {
     examination: ExaminationDto;
     visit: VisitDto;
+    imagePreviews?: string[];
   }
 
   const isDataLoaded = ref(false);

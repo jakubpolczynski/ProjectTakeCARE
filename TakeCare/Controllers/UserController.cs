@@ -13,6 +13,7 @@ namespace TakeCare.Controllers
 		private readonly IGenericService<Doctor>? _doctorGenericService;
 		private readonly IGenericService<Patient>? _patientGenericService;
 		private readonly IGenericService<Address>? _addressGenericService;
+		private readonly IGenericService<Receptionist>? _receptionistGenericService;
 		private readonly IUserService? _userService;
 		private readonly IPatientService? _patientService;
 
@@ -21,6 +22,7 @@ namespace TakeCare.Controllers
 			IGenericService<Doctor> doctorGenericService,
 			IGenericService<Patient> patientGenericService,
 			IGenericService<Address> addressGenericService,
+			IGenericService<Receptionist> receptionistGenericService,
 			IUserService userService,
 			IPatientService patientService
 			)
@@ -29,6 +31,7 @@ namespace TakeCare.Controllers
 	        _doctorGenericService = doctorGenericService;
 	        _patientGenericService = patientGenericService;
 	        _addressGenericService= addressGenericService;
+			_receptionistGenericService = receptionistGenericService;
 			_userService = userService;
 			_patientService = patientService;
 
@@ -127,8 +130,46 @@ namespace TakeCare.Controllers
 			}
 
         }
+		[HttpPost("AddReceptionist")]
+		public async Task<IActionResult> AddReceptionist(ReceptionistDto receptionist)
+		{
+			if (!ModelState.IsValid || receptionist.Role != "Receptionist" || _userGenericService == null || _receptionistGenericService == null)
+			{
+				return BadRequest();
+			}
 
-        [HttpDelete]
+			var userEntity = new User
+			{
+				Email = receptionist.Email,
+				Password = BCrypt.Net.BCrypt.HashPassword(receptionist.Password),
+				Role = receptionist.Role
+			};
+
+			var receptionistEntity = new Receptionist
+			{
+				FirstName = receptionist.FirstName,
+				LastName = receptionist.LastName,
+				Email = receptionist.Email,
+				User = userEntity
+			};
+
+			var userExists = await _userService!.CheckIfUserExistsAsync(userEntity.Email);
+
+			if (userExists)
+			{
+				return BadRequest("You already have an account");
+			}
+			else
+			{
+				await _userGenericService.CreateAsync(userEntity);
+				await _receptionistGenericService.CreateAsync(receptionistEntity);
+
+				return Created("Success", receptionist);
+			}
+
+		}
+
+		[HttpDelete]
         public async Task<IActionResult> DeleteUser(int id)
         {
 	        if (!ModelState.IsValid || _userGenericService == null)
@@ -227,5 +268,34 @@ namespace TakeCare.Controllers
 
 	        return Ok();
         }
+
+		[HttpPost("UpdateReceptionist")]
+		public async Task<IActionResult> UpdateReceptionist(ReceptionistDto receptionist)
+		{
+			if (!ModelState.IsValid || receptionist.Role != "Receptionist" || _userGenericService == null || _receptionistGenericService == null)
+			{
+				return BadRequest();
+			}
+
+			var userEntity = new User
+			{
+				Email = receptionist.Email,
+				Password = receptionist.Password,
+				Role = receptionist.Role
+			};
+
+			var receptionistEntity = new Receptionist
+			{
+				FirstName = receptionist.FirstName,
+				LastName = receptionist.LastName,
+				Email = receptionist.Email,
+				User = userEntity
+			};
+
+			await _userGenericService.UpdateAsync(userEntity);
+			await _receptionistGenericService.UpdateAsync(receptionistEntity);
+
+			return Ok();
+		}
 	}
 }
