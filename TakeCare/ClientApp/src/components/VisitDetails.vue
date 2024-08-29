@@ -21,6 +21,9 @@
               <h5 class="mb-1">Doctor: {{ bookedVisit.doctorFirstName }} {{ bookedVisit.doctorLastName }} ({{ bookedVisit.doctorSpecialization }})</h5>
               <small>{{ formattedSlot(bookedVisit).date }} {{ formattedSlot(bookedVisit).time }}</small>
             </div>
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">Patient: {{ bookedVisit.patientFirstName }} {{ bookedVisit.patientLastName }}</h5>
+            </div>
             <div class="d-flex w-100">
               <p class="mb-1 mt-2 flex-grow-1">Reason: {{ bookedVisit.reason }}</p>
               <button
@@ -115,9 +118,9 @@
 
   const showExamination = (bookedVisit: VisitDto) => {
     if (actualRole.value === "Doctor") {
-      router.push({ name: "doctorExaminations" });
+      router.push({ name: "doctorExaminations", params: { patient: `${bookedVisit.patientFirstName + " " + bookedVisit.patientLastName}`, date: bookedVisit.slot } });
     } else {
-      router.push({ name: "patientExaminations" });
+      router.push({ name: "patientExaminations", params: { date: bookedVisit.slot } });
     }
   };
 </script>

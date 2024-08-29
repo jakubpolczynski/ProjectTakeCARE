@@ -1,5 +1,6 @@
 import { DoctorDto } from "@/models/DoctorDto";
 import { PatientDto } from "@/models/PatientDto";
+import { ReceptionistDto } from "@/models/ReceptionistDto";
 import axios from "axios";
 
 const apiClient = axios.create({
@@ -19,10 +20,6 @@ export const addPatient = async (data: PatientDto) => {
   return await apiClient.post("/User/AddPatient", data);
 };
 
-export const deleteUser = async (id: string) => {};
-
-export const getUser = async (data: any) => {};
-
-export const updatePatient = async (data: any) => {};
-
-export const updateDoctor = async (data: any) => {};
+export const addReceptionist = async (data: ReceptionistDto) => {
+  return await apiClient.post("/User/AddReceptionist", data);
+};

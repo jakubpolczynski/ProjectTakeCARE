@@ -10,7 +10,7 @@ import PatientVisitsView from "@/views/PatientVisitsView.vue";
 import PatientExaminationView from "@/views/PatientExaminationView.vue";
 import OngoingExaminationView from "@/views/OngoingExaminationView.vue";
 import DoctorExaminationView from "@/views/DoctorExaminationView.vue";
-import PdfPreview from "@/modals/PdfPreviewModal.vue";
+import ReceptionistVisitsView from "@/views/ReceptionistVisitsView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -63,16 +63,22 @@ const router = createRouter({
       meta: { requiresAuth: true, requiresDoctor: true },
     },
     {
-      path: "/patientExaminations",
+      path: "/patientExaminations/:date",
       name: "patientExaminations",
       component: PatientExaminationView,
       meta: { requiresAuth: true, requiresPatient: true },
     },
     {
-      path: "/doctorExaminations",
+      path: "/doctorExaminations/:patient/:date",
       name: "doctorExaminations",
       component: DoctorExaminationView,
       meta: { requiresAuth: true, requiresDoctor: true },
+    },
+    {
+      path: "/receptionistVisits",
+      name: "receptionistVisits",
+      component: ReceptionistVisitsView,
+      meta: { requiresAuth: true, requiresReceptionist: true },
     },
   ],
 });
@@ -81,6 +87,7 @@ router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
   const requiresDoctor = to.matched.some((record) => record.meta.requiresDoctor);
   const requiresPatient = to.matched.some((record) => record.meta.requiresPatient);
+  const requiresReceptionist = to.matched.some((record) => record.meta.requiresReceptionist);
   const isAuthenticated = store.state.authenticated;
 
   if (requiresAuth && !isAuthenticated) {
@@ -88,6 +95,8 @@ router.beforeEach((to, from, next) => {
   } else if (requiresDoctor && store.state.user !== "Doctor") {
     next({ name: "home" });
   } else if (requiresPatient && store.state.user !== "Patient") {
+    next({ name: "home" });
+  } else if (requiresReceptionist && store.state.user !== "Receptionist") {
     next({ name: "home" });
   } else {
     next();

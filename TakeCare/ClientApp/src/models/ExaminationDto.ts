@@ -8,4 +8,5 @@ export class ExaminationDto {
   public doctorEmail: string = "";
   public patientEmail: string = "";
   public visitId: number = 0;
+  public images?: string[] = [];
 }

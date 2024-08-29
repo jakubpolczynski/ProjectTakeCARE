@@ -22,5 +22,6 @@ namespace TakeCare.Application.Models
 		public string DoctorEmail { get; set; } = string.Empty;
 		[Required]
 		public int VisitId { get; set; }
+		public List<string>? Images { get; set; } 
 	}
 }

@@ -133,6 +133,28 @@ namespace TakeCare.Database.Migrations
                     b.ToTable("ExaminationTable");
                 });
 
+            modelBuilder.Entity("TakeCare.Database.Entity.ExaminationImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ExaminationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExaminationId");
+
+                    b.ToTable("ExaminationImageTable");
+                });
+
             modelBuilder.Entity("TakeCare.Database.Entity.Patient", b =>
                 {
                     b.Property<int>("Id")
@@ -174,6 +196,36 @@ namespace TakeCare.Database.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("PatientTable");
+                });
+
+            modelBuilder.Entity("TakeCare.Database.Entity.Receptionist", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ReceptionistTable");
                 });
 
             modelBuilder.Entity("TakeCare.Database.Entity.User", b =>
@@ -272,6 +324,17 @@ namespace TakeCare.Database.Migrations
                     b.Navigation("Visit");
                 });
 
+            modelBuilder.Entity("TakeCare.Database.Entity.ExaminationImage", b =>
+                {
+                    b.HasOne("TakeCare.Database.Entity.Examination", "Examination")
+                        .WithMany("Images")
+                        .HasForeignKey("ExaminationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Examination");
+                });
+
             modelBuilder.Entity("TakeCare.Database.Entity.Patient", b =>
                 {
                     b.HasOne("TakeCare.Database.Entity.Address", "Address")
@@ -287,6 +350,17 @@ namespace TakeCare.Database.Migrations
                         .IsRequired();
 
                     b.Navigation("Address");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TakeCare.Database.Entity.Receptionist", b =>
+                {
+                    b.HasOne("TakeCare.Database.Entity.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -313,6 +387,11 @@ namespace TakeCare.Database.Migrations
             modelBuilder.Entity("TakeCare.Database.Entity.Doctor", b =>
                 {
                     b.Navigation("Visits");
+                });
+
+            modelBuilder.Entity("TakeCare.Database.Entity.Examination", b =>
+                {
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("TakeCare.Database.Entity.Patient", b =>

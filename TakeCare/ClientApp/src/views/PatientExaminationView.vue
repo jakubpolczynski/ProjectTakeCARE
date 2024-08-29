@@ -1,8 +1,66 @@
 <template>
   <div v-if="isDataLoaded">
     <h1>Examinations</h1>
+    <div class="mb-3 row">
+      <div class="col-12 col-md-6">
+        <label
+          for="date"
+          class="form-label"
+        >
+          Search by date
+        </label>
+        <input
+          type="date"
+          v-model="searchQuery.date"
+          placeholder="Search by Date"
+          class="form-control"
+        />
+      </div>
+      <div class="col-12 col-md-6">
+        <label
+          for="date"
+          class="form-label"
+        >
+          Search by time
+        </label>
+        <input
+          type="time"
+          v-model="searchQuery.time"
+          placeholder="Search by time"
+          class="form-control"
+        />
+      </div>
+      <div class="col-12 col-md-6">
+        <label
+          for="specialization"
+          class="form-label"
+        >
+          Search by specialization
+        </label>
+        <input
+          type="text"
+          v-model="searchQuery.specialization"
+          placeholder="Search by specialization"
+          class="form-control"
+        />
+      </div>
+      <div class="col-12 col-md-6">
+        <label
+          for="name"
+          class="form-label"
+        >
+          Search by doctor name
+        </label>
+        <input
+          type="text"
+          v-model="searchQuery.name"
+          placeholder="Search by doctor name"
+          class="form-control"
+        />
+      </div>
+    </div>
     <div
-      v-for="executedVisit in executedVisits"
+      v-for="executedVisit in filteredExecutedVisits"
       :key="executedVisit.examination.id"
       class="card mb-3"
     >
@@ -64,19 +122,40 @@
           <p><strong>Reason: </strong>{{ executedVisit.visit.reason }}</p>
           <p><strong>Date: </strong>{{ formattedSlot(executedVisit.visit.slot).date }} {{ formattedSlot(executedVisit.visit.slot).time }}</p>
         </div>
+        <div class="col-12">
+          <h4 class="text-primary">Uploaded Images</h4>
+          <div v-if="executedVisit.imagePreviews?.length > 0">
+            <div
+              v-for="(image, index) in executedVisit.imagePreviews"
+              :key="index"
+              class="mb-3"
+            >
+              <img
+                :src="image"
+                alt="Uploaded Image"
+                class="rounded img-fluid"
+              />
+            </div>
+          </div>
+          <div v-else>
+            <p>No images uploaded.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-  import { ref, onMounted } from "vue";
+  import { ref, onMounted, computed } from "vue";
   import html2pdf from "html2pdf.js";
+  import { useRoute } from "vue-router";
 
   import { getPatientExaminations } from "@/api/examinationApi";
+  import { getPatientExecutedVisits } from "@/api/visitsApi";
   import { ExaminationDto } from "@/models/ExaminationDto";
   import { VisitDto } from "@/models/VisitDto";
-  import { getPatientExecutedVisits } from "@/api/visitsApi";
 
+  const route = useRoute();
   const isDataLoaded = ref(false);
   const examinations = ref<ExaminationDto[]>();
   const visits = ref<VisitDto[]>();
@@ -85,12 +164,41 @@
   interface ExecutedVisitDto {
     examination: ExaminationDto;
     visit: VisitDto;
+    imagePreviews?: string[];
   }
 
-  // Stan widoczności dla każdej karty (tablica booleanów)
   const isVisible = ref<boolean[]>([]);
 
+  const searchQuery = ref({
+    date: "",
+    time: "",
+    specialization: "",
+    name: "",
+  });
+
+  const filteredExecutedVisits = computed(() => {
+    return executedVisits.value.filter((executedVisit) => {
+      const visitDate = formattedSlot(executedVisit.visit.slot).date;
+      const visitTime = formattedSlot(executedVisit.visit.slot).time;
+      const doctorSpecialization = executedVisit.visit.doctorSpecialization;
+      const doctorName = `${executedVisit.visit.doctorFirstName} ${executedVisit.visit.doctorLastName}`;
+
+      const matchesDate = !searchQuery.value.date || visitDate === searchQuery.value.date;
+      const matchesTime = !searchQuery.value.time || visitTime === searchQuery.value.time;
+      const matchesSpecialization = doctorSpecialization.toLowerCase().includes(searchQuery.value.specialization.toLowerCase());
+      const matchesName = doctorName.toLowerCase().includes(searchQuery.value.name.toLocaleLowerCase());
+
+      return matchesDate && matchesTime && matchesSpecialization && matchesName;
+    });
+  });
+
   onMounted(async () => {
+    const routeDate = route.params.date as string | undefined;
+    if (routeDate) {
+      searchQuery.value.date = formattedSlot(routeDate).date;
+      searchQuery.value.time = formattedSlot(routeDate).time;
+    }
+
     examinations.value = (await getPatientExaminations(localStorage.getItem("email"))).data;
     visits.value = (await getPatientExecutedVisits(localStorage.getItem("email"))).data;
 
@@ -101,18 +209,15 @@
       };
     });
 
-    // Ustawiamy domyślną wartość false dla każdej karty (wszystkie zamknięte na start)
     isVisible.value = new Array(executedVisits.value.length).fill(false);
 
     isDataLoaded.value = true;
   });
 
-  // Funkcja, która zmienia stan widoczności dla konkretnej karty
   function toggle(index: number) {
     isVisible.value[index] = !isVisible.value[index];
   }
 
-  // Funkcja, która generuje i drukuje PDF dla konkretnej karty
   function printPDF(index: number, executedVisit: ExecutedVisitDto) {
     const element = document.getElementById("card-content-" + index);
     const opt = {

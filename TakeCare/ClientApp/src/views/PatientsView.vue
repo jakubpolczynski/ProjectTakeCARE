@@ -12,7 +12,7 @@
     <div>
       <button
         class="btn btn-info text-white mt-1"
-        @click="showExamination()"
+        @click="showExamination(patient)"
       >
         Show examinations
       </button>
@@ -33,8 +33,8 @@
     patients.value = (await getDoctorPatients(localStorage.getItem("email"))).data;
   });
 
-  const showExamination = async () => {
-    await router.push({ name: "doctorExaminations" });
+  const showExamination = async (patient: PatientDto) => {
+    await router.push({ name: "doctorExaminations", params: { patient: `${patient.firstName + " " + patient.lastName}`, date: " " } });
   };
 </script>
 <style scoped lang="scss"></style>

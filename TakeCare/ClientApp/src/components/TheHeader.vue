@@ -22,14 +22,14 @@
             text="Visits"
           />
           <NavLink
-            v-if="auth && userRole === 'Doctor'"
-            link="/patients"
-            text="Patients"
+            v-if="auth && userRole === 'Receptionist'"
+            link="/receptionistvisits"
+            text="Visits"
           />
           <NavLink
             v-if="auth && userRole === 'Doctor'"
-            link="/forms"
-            text="Forms"
+            link="/patients"
+            text="Patients"
           />
         </ul>
         <ul class="nav d-flex justify-content-end">

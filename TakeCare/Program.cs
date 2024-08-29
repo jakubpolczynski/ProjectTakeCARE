@@ -31,6 +31,7 @@ builder.Services.AddScoped(typeof(IGenericService<User>), typeof(GenericService<
 builder.Services.AddScoped(typeof(IGenericService<Patient>), typeof(GenericService<TakeCareDbContext, Patient>));
 builder.Services.AddScoped(typeof(IGenericService<Doctor>), typeof(GenericService<TakeCareDbContext, Doctor>));
 builder.Services.AddScoped(typeof(IGenericService<Address>), typeof(GenericService<TakeCareDbContext, Address>));
+builder.Services.AddScoped(typeof(IGenericService<Receptionist>), typeof(GenericService<TakeCareDbContext, Receptionist>));
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IVisitService, VisitService>();

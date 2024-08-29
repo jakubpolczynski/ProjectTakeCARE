@@ -25,46 +25,15 @@ namespace TakeCare.Application.Services
 
 		public async Task<ExaminationDto[]> GetPatientExaminations(string patientEmail)
 		{
-			if(patientEmail == null)
+			if (patientEmail == null)
 			{
 				throw new ArgumentException("Invalid patient specified.");
 			}
+
 			try
 			{
 				var examinations = await _dbSetExamination
-					.Where(e => e.Patient!.Email == patientEmail)
-					.Select(e => new ExaminationDto { 
-						Id = e.Id,
-						Date = e.Date,
-						Name = e.Name,
-						Description = e.Description,
-						Type = e.Type,
-						Result = e.Result,
-						PatientEmail = e.Patient!.Email,
-						DoctorEmail	= e.Doctor!.Email,
-						VisitId = e.Visit!.Id
-					})
-					.ToArrayAsync();
-
-				return examinations;
-			} 
-			catch(Exception e)
-			{
-				throw new InvalidOperationException("Examinations not found.");
-			}
-		}
-
-		public async Task<ExaminationDto[]> GetDoctorExaminations(string doctorEmail)
-		{
-			if (doctorEmail == null)
-			{
-				throw new ArgumentException("Invalid doctor specified.");
-			}
-			try
-			{
-
-				var examinations = await _dbSetExamination
-					.Where(e => e.Doctor!.Email == doctorEmail)
+					.Where(e => e.Patient != null && e.Patient.Email == patientEmail)
 					.Select(e => new ExaminationDto
 					{
 						Id = e.Id,
@@ -73,26 +42,63 @@ namespace TakeCare.Application.Services
 						Description = e.Description,
 						Type = e.Type,
 						Result = e.Result,
-						PatientEmail = e.Patient!.Email,
-						DoctorEmail = e.Doctor!.Email,
-						VisitId = e.Visit!.Id
+						PatientEmail = e.Patient != null ? e.Patient.Email : string.Empty,
+						DoctorEmail = e.Doctor != null ? e.Doctor.Email : string.Empty,
+						VisitId = e.Visit != null ? e.Visit.Id : 0,
+						Images = e.Images != null ? e.Images.Select(i => i.ImagePath).ToList() : new List<string>()
 					})
 					.ToArrayAsync();
 
 				return examinations;
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				throw new InvalidOperationException("Examinations not found.");
+				throw new InvalidOperationException("Examinations not found.", ex);
+			}
+		}
+
+
+		public async Task<ExaminationDto[]> GetDoctorExaminations(string doctorEmail)
+		{
+			if (doctorEmail == null)
+			{
+				throw new ArgumentException("Invalid doctor specified.");
+			}
+
+			try
+			{
+				var examinations = await _dbSetExamination
+					.Where(e => e.Doctor != null && e.Doctor.Email == doctorEmail)
+					.Select(e => new ExaminationDto
+					{
+						Id = e.Id,
+						Date = e.Date,
+						Name = e.Name,
+						Description = e.Description,
+						Type = e.Type,
+						Result = e.Result,
+						PatientEmail = e.Patient != null ? e.Patient.Email : string.Empty,
+						DoctorEmail = e.Doctor != null ? e.Doctor.Email : string.Empty,
+						VisitId = e.Visit != null ? e.Visit.Id : 0,
+						Images = e.Images != null ? e.Images.Select(i => i.ImagePath).ToList() : new List<string>()
+					})
+					.ToArrayAsync();
+
+				return examinations;
+			}
+			catch (Exception ex)
+			{
+				throw new InvalidOperationException("Examinations not found.", ex);
 			}
 		}
 
 		public async Task AddExamination(ExaminationDto examinationDto)
 		{
-			if(examinationDto == null)
+			if (examinationDto == null)
 			{
 				throw new ArgumentException("Invalid examination specified.");
 			}
+
 			try
 			{
 				var patient = await _dbSetPatient.FirstOrDefaultAsync(p => p.Email == examinationDto.PatientEmail);
@@ -116,15 +122,28 @@ namespace TakeCare.Application.Services
 					Visit = visit
 				};
 
+				if (examinationDto.Images != null && examinationDto.Images.Count > 0)
+				{
+					foreach (var imagePath in examinationDto.Images)
+					{
+						var examinationImage = new ExaminationImage
+						{
+							ImagePath = imagePath,
+							Examination = examination
+						};
+						examination.Images.Add(examinationImage);
+					}
+				}
+
 				_dbSetExamination.Add(examination);
 
 				visit.IsVisitExecuted = true;
 
 				await _context.SaveChangesAsync();
 			}
-			catch(Exception e)
+			catch (Exception ex)
 			{
-				throw new InvalidOperationException("Examination not added.");
+				throw new InvalidOperationException("Examination not added.", ex);
 			}
 		}
 
