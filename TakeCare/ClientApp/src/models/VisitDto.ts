@@ -10,4 +10,5 @@ export class VisitDto {
   public isVisitExecuted: boolean = false;
   public patientFirstName: string = "";
   public patientLastName: string = "";
+  public patientPesel?: string;
 }

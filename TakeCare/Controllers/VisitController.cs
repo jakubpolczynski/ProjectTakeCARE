@@ -77,6 +77,40 @@ namespace TakeCare.Controllers
 			}
 		}
 
+		[HttpPost("BookVisitAsReceptionist")]
+		public async Task<IActionResult> BookVisitAsReceptionist(VisitDto visitDto)
+		{
+			if (visitDto == null)
+			{
+				return BadRequest("Visit data is required.");
+			}
+
+			if (string.IsNullOrWhiteSpace(visitDto.DoctorEmail) ||
+				string.IsNullOrWhiteSpace(visitDto.PatientPesel) ||
+				visitDto.Slot == default)
+			{
+				return BadRequest("Invalid input parameters.");
+			}
+
+			try
+			{
+				await _visitService!.BookVisitAsReceptionist(visitDto);
+				return Ok("Visit booked successfully.");
+			}
+			catch (ArgumentException ex)
+			{
+				return NotFound(ex.Message);
+			}
+			catch (InvalidOperationException ex)
+			{
+				return BadRequest(ex.Message);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, $"Internal server error: {ex.Message}");
+			}
+		}
+
 		[HttpGet("GetPatientVisits")]
 		public async Task<IActionResult> GetPatientVisits(string patientEmail)
 		{

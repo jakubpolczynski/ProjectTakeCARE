@@ -104,6 +104,44 @@ namespace TakeCare.Application.Services
 			await _context.SaveChangesAsync();
 		}
 
+		public async Task BookVisitAsReceptionist(VisitDto visit)
+		{
+			if (visit == null)
+			{
+				throw new ArgumentNullException(nameof(visit));
+			}
+
+			var doctor = await _context.DoctorTable!
+				.Include(d => d.Visits)
+				.FirstOrDefaultAsync(d => d.Email == visit.DoctorEmail) ?? throw new ArgumentException("Doctor not found.");
+
+			var slotDate = visit.Slot;
+			if (doctor.Visits != null && doctor.Visits.Any(v => v.Date == slotDate))
+			{
+				throw new InvalidOperationException("Doctor is not available at the requested slot.");
+			}
+
+			var patient = await _context.PatientTable!
+				.FirstOrDefaultAsync(p => p.Pesel == visit.PatientPesel);
+
+			if (patient == null)
+			{
+				throw new ArgumentException("Patient not found.");
+			}
+
+			var newVisit = new Visit
+			{
+				DoctorId = doctor.Id,
+				PatientId = patient.Id,
+				Date = visit.Slot,
+				Description = visit.Reason,
+				IsVisitExecuted = visit.IsVisitExecuted
+			};
+
+			_context.VisitTable!.Add(newVisit);
+			await _context.SaveChangesAsync();
+		}
+
 		public async Task<List<VisitDto>> GetPatientVisits(string patientEmail)
 		{
 			if (string.IsNullOrWhiteSpace(patientEmail))

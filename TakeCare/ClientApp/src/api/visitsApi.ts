@@ -19,6 +19,10 @@ export const bookVisit = async (data: VisitDto) => {
   return await apiClient.post("/Visit/BookVisit", data);
 };
 
+export const bookVisitAsReceptionist = async (data: VisitDto) => {
+  return await apiClient.post("/Visit/BookVisitAsReceptionist", data);
+};
+
 export const getPatientVisits = async (patientEmail: string) => {
   return await apiClient.get(`/Visit/GetPatientVisits?patientEmail=${patientEmail}`);
 };

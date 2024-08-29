@@ -21,6 +21,7 @@ namespace TakeCare.Application.Models
 		public string DoctorSpecialization { get; set; } = string.Empty;
 		public string PatientFirstName { get; set; } = string.Empty;
 		public string PatientLastName { get; set; } = string.Empty;
+		public string PatientPesel { get; set; } = string.Empty;
 	}
 
 }
