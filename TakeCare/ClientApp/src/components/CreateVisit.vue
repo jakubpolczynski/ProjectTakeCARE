@@ -114,6 +114,24 @@
               ></textarea>
               <div class="validation-error">{{ visitReasonError }}</div>
             </div>
+            <div
+              v-if="actualRole === 'Receptionist'"
+              class="mb-3"
+            >
+              <label
+                for="patientPesel"
+                class="form-label"
+                >Patient pesel</label
+              >
+              <input
+                type="text"  
+                class="form-control"
+                id="patientPesel"
+                v-model="patientPesel"
+                rows="3"
+              ></input>
+              <div class="validation-error">{{ patientPeselError }}</div>
+            </div>
           </div>
           <div class="modal-footer">
             <button
@@ -127,7 +145,7 @@
               type="button"
               class="btn btn-primary"
               @click="confirmBooking()"
-              :disabled="checkReason()"
+              :disabled="(checkReason() || checkPesel())"
               data-bs-dismiss="modal"
             >
               Confirm Booking
@@ -140,12 +158,12 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch, computed } from "vue";
+  import { ref, watch, computed, onMounted } from "vue";
   import * as yup from "yup";
   import { useForm } from "vee-validate";
   import { AxiosError } from "axios";
 
-  import { findAvailableVisits, bookVisit } from "@/api/visitsApi";
+  import { findAvailableVisits, bookVisit, bookVisitAsReceptionist } from "@/api/visitsApi";
 
   import SearchableSelect from "@/components/SearchableSelect.vue";
   import { MedicalSpecialties } from "@/enums/MedicalSpecialties";
@@ -162,6 +180,11 @@
   const selectedSpecialty = ref("");
   const availableDates = ref<AvailableDateDto | null>(null);
   const modalVisible = ref<boolean>();
+  const actualRole = ref("");
+
+  onMounted(() => {
+    actualRole.value = localStorage.getItem("user");
+  });
 
   const selectedDoctor = ref<AvailableDateDoctorDto>({
     email: "",
@@ -184,6 +207,7 @@
     isVisitExecuted: false,
     patientFirstName: "",
     patientLastName: "",
+    patientPesel: "",
   });
 
   const findDate = ref<FindDateDto>({
@@ -202,6 +226,8 @@
 
   const visitReason = ref("");
   const visitReasonError = ref("");
+  const patientPesel = ref("");
+  const patientPeselError = ref("");
 
   const findDateSchema = yup.object({
     doctor: yup.string(),
@@ -257,7 +283,11 @@
   const bookSelectedVisit = async () => {
     errorMessage.value = "";
     try {
-      await bookVisit(selectedDate.value);
+      if(actualRole.value === "Receptionist"){
+        await bookVisitAsReceptionist(selectedDate.value);        
+      } else {
+        await bookVisit(selectedDate.value);
+      }
       await findAvailableDate();
       emit("visitBooked");
     } catch (error) {
@@ -316,6 +346,25 @@
     }
   };
 
+  const checkPesel = () => {
+  if (actualRole.value === "Receptionist") {
+    if (!patientPesel.value) {
+      patientPeselError.value = "Patient pesel is required";
+      return true;
+    } else if (patientPesel.value.length !== 11) {
+      patientPeselError.value = "PESEL must be exactly 11 characters";
+      return true;
+    } else {
+      patientPeselError.value = ""; // Clear error if PESEL is valid
+      return false;
+    }
+  } else {
+    patientPeselError.value = ""; // Clear error if role is not Receptionist
+    return false;
+  }
+};
+
+
   const showModal = (doctor: AvailableDateDoctorDto, date: Date) => {
     fillVisitDto(doctor, date);
     fillSelectedDoctorDto(doctor);
@@ -324,6 +373,9 @@
 
   const confirmBooking = () => {
     selectedDate.value.reason = visitReason.value;
+    if(actualRole.value === "Receptionist"){
+      selectedDate.value.patientPesel = patientPesel.value;
+    }
     bookSelectedVisit();
   };
 </script>
