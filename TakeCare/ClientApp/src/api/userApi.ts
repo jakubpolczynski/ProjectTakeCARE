@@ -1,16 +1,8 @@
 import { DoctorDto } from "@/models/DoctorDto";
 import { PatientDto } from "@/models/PatientDto";
 import { ReceptionistDto } from "@/models/ReceptionistDto";
-import axios from "axios";
+import { apiClient } from "./client";
 
-const apiClient = axios.create({
-  baseURL: "http://localhost:5184/api",
-  headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
-  },
-});
 
 export const addDoctor = async (data: DoctorDto) => {
   return await apiClient.post("/User/AddDoctor", data);

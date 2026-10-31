@@ -1,15 +1,7 @@
-import axios from "axios";
+import { apiClient } from "./client";
 import { FindDateDto } from "@/models/FindDateDto";
 import { VisitDto } from "@/models/VisitDto";
 
-const apiClient = axios.create({
-  baseURL: "http://localhost:5184/api",
-  headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
-  },
-});
 
 export const findAvailableVisits = async (data: FindDateDto) => {
   return await apiClient.post("/Visit/FindAvailableVisits", data);
@@ -24,11 +16,11 @@ export const bookVisitAsReceptionist = async (data: VisitDto) => {
 };
 
 export const getPatientVisits = async (patientEmail: string) => {
-  return await apiClient.get(`/Visit/GetPatientVisits?patientEmail=${patientEmail}`);
+  return await apiClient.get("/Visit/GetPatientVisits", { params: { patientEmail } });
 };
 
 export const getDoctorVisits = async (doctorEmail: string) => {
-  return await apiClient.get(`/Visit/GetDoctorVisits?doctorEmail=${doctorEmail}`);
+  return await apiClient.get("/Visit/GetDoctorVisits", { params: { doctorEmail } });
 };
 
 export const deleteBookedVisit = async (data: VisitDto) => {
@@ -40,9 +32,9 @@ export const getVisit = async (visitId: number) => {
 };
 
 export const getPatientExecutedVisits = async (patientEmail: string) => {
-  return await apiClient.get(`/Visit/GetPatientExecutedVisits?patientEmail=${patientEmail}`);
+  return await apiClient.get("/Visit/GetPatientExecutedVisits", { params: { patientEmail } });
 };
 
 export const getDoctorExecutedVisits = async (doctorEmail: string) => {
-  return await apiClient.get(`/Visit/GetDoctorExecutedVisits?doctorEmail=${doctorEmail}`);
+  return await apiClient.get("/Visit/GetDoctorExecutedVisits", { params: { doctorEmail } });
 };

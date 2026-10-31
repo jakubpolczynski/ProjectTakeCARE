@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 using TakeCare.Application.Interfaces;
 using TakeCare.Application.Models;
 using TakeCare.Database.Data;
@@ -23,9 +24,9 @@ namespace TakeCare.Application.Services
 			_dbSetVisit = _context.Set<Visit>();
 		}
 
-		public async Task<ExaminationDto[]> GetPatientExaminations(string patientEmail)
+		public async Task<ExaminationDto[]> GetPatientExaminations(int patientUserId)
 		{
-			if (patientEmail == null)
+			if (patientUserId <= 0)
 			{
 				throw new ArgumentException("Invalid patient specified.");
 			}
@@ -33,7 +34,7 @@ namespace TakeCare.Application.Services
 			try
 			{
 				var examinations = await _dbSetExamination
-					.Where(e => e.Patient != null && e.Patient.Email == patientEmail)
+					.Where(e => e.Patient != null && e.Patient.UserId == patientUserId)
 					.Select(e => new ExaminationDto
 					{
 						Id = e.Id,
@@ -58,9 +59,9 @@ namespace TakeCare.Application.Services
 		}
 
 
-		public async Task<ExaminationDto[]> GetDoctorExaminations(string doctorEmail)
+		public async Task<ExaminationDto[]> GetDoctorExaminations(int doctorUserId)
 		{
-			if (doctorEmail == null)
+			if (doctorUserId <= 0)
 			{
 				throw new ArgumentException("Invalid doctor specified.");
 			}
@@ -68,7 +69,7 @@ namespace TakeCare.Application.Services
 			try
 			{
 				var examinations = await _dbSetExamination
-					.Where(e => e.Doctor != null && e.Doctor.Email == doctorEmail)
+					.Where(e => e.Doctor != null && e.Doctor.UserId == doctorUserId)
 					.Select(e => new ExaminationDto
 					{
 						Id = e.Id,
@@ -92,8 +93,11 @@ namespace TakeCare.Application.Services
 			}
 		}
 
-		public async Task AddExamination(ExaminationDto examinationDto)
+		public async Task<int> AddExamination(ExaminationDto examinationDto, int doctorUserId, byte[] pdfContent)
 		{
+			if (pdfContent is null || pdfContent.Length < 5 || pdfContent.Length > 5 * 1024 * 1024 ||
+				!pdfContent.AsSpan(0, 5).SequenceEqual("%PDF-"u8))
+				throw new ArgumentException("Invalid PDF document.");
 			if (examinationDto == null)
 			{
 				throw new ArgumentException("Invalid examination specified.");
@@ -101,14 +105,14 @@ namespace TakeCare.Application.Services
 
 			try
 			{
-				var patient = await _dbSetPatient.FirstOrDefaultAsync(p => p.Email == examinationDto.PatientEmail);
-				var doctor = await _dbSetDoctor.FirstOrDefaultAsync(u => u.Email == examinationDto.DoctorEmail);
-				var visit = await _dbSetVisit.FirstOrDefaultAsync(v => v.Id == examinationDto.VisitId);
-
-				if (patient == null || doctor == null || visit == null)
-				{
-					throw new Exception("Patient, Doctor, or Visit not found");
-				}
+                var visit = await _dbSetVisit.Include(v => v.Patient).Include(v => v.Doctor)
+                    .SingleOrDefaultAsync(v => v.Id == examinationDto.VisitId &&
+                        v.Doctor!.UserId == doctorUserId && !v.IsVisitExecuted);
+                if (visit?.Patient == null || visit.Doctor == null ||
+                    visit.Patient.Email != examinationDto.PatientEmail || visit.Doctor.Email != examinationDto.DoctorEmail)
+                    throw new VisitUnavailableException();
+                var patient = visit.Patient;
+                var doctor = visit.Doctor;
 
 				var examination = new Examination
 				{
@@ -117,6 +121,7 @@ namespace TakeCare.Application.Services
 					Description = examinationDto.Description,
 					Type = examinationDto.Type,
 					Result = examinationDto.Result,
+					PdfContent = pdfContent,
 					Patient = patient,
 					Doctor = doctor,
 					Visit = visit
@@ -140,7 +145,13 @@ namespace TakeCare.Application.Services
 				visit.IsVisitExecuted = true;
 
 				await _context.SaveChangesAsync();
+				return examination.Id;
 			}
+			catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 2601 or 2627 })
+			{
+				throw new VisitUnavailableException();
+			}
+			catch (VisitUnavailableException) { throw; }
 			catch (Exception ex)
 			{
 				throw new InvalidOperationException("Examination not added.", ex);

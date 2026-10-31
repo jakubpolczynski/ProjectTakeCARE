@@ -85,7 +85,6 @@
   import { VisitDto } from "@/models/VisitDto";
 
   const props = defineProps<{ executedVisit: ExecutedVisitDto }>();
-  console.log(props);
 
   interface ExecutedVisitDto {
     examination: ExaminationDto;

@@ -85,6 +85,10 @@
         >
           Print PDF
         </button>
+        <button class="btn btn-outline-secondary ms-2" type="button" @click="downloadPdf(executedVisit.examination.id)">
+          Download saved PDF
+        </button>
+        <p v-if="downloadError" class="text-danger mt-2" role="alert">{{ downloadError }}</p>
       </div>
       <div
         v-if="isVisible[executedVisit.examination.id]"
@@ -150,13 +154,19 @@
   import html2pdf from "html2pdf.js";
   import { useRoute } from "vue-router";
 
-  import { getPatientExaminations } from "@/api/examinationApi";
+  import { getPatientExaminations, downloadExaminationPdf } from "@/api/examinationApi";
   import { getPatientExecutedVisits } from "@/api/visitsApi";
   import { ExaminationDto } from "@/models/ExaminationDto";
   import { VisitDto } from "@/models/VisitDto";
 
   const route = useRoute();
   const isDataLoaded = ref(false);
+  const downloadError = ref("");
+  const downloadPdf = async (id: number) => {
+    downloadError.value = "";
+    try { await downloadExaminationPdf(id); }
+    catch { downloadError.value = "The saved PDF is unavailable. Older examinations may not have a stored PDF."; }
+  };
   const examinations = ref<ExaminationDto[]>();
   const visits = ref<VisitDto[]>();
   const executedVisits = ref<ExecutedVisitDto[]>();
@@ -200,13 +210,17 @@
     }
 
     examinations.value = (await getPatientExaminations(localStorage.getItem("email"))).data;
+    // Older data can contain arbitrary client-supplied image paths; never fetch remote URLs.
+    examinations.value = examinations.value.map((item) => ({
+      ...item,
+      images: (item.images || []).filter((image) =>
+        image.startsWith("data:image/png;base64,") || image.startsWith("data:image/jpeg;base64,")),
+    }));
     visits.value = (await getPatientExecutedVisits(localStorage.getItem("email"))).data;
 
-    executedVisits.value = visits.value.map((visit) => {
-      return {
-        examination: examinations.value.find((examination) => examination.visitId === visit.id),
-        visit,
-      };
+    executedVisits.value = visits.value.flatMap((visit) => {
+      const examination = examinations.value.find((item) => item.visitId === visit.id);
+      return examination ? [{ examination, visit }] : [];
     });
 
     isVisible.value = new Array(executedVisits.value.length).fill(false);
@@ -222,10 +236,10 @@
     const element = document.getElementById("card-content-" + index);
     const opt = {
       margin: 1,
-      filename: `Examination_${executedVisit.visit.patientEmail}_${formattedSlot(executedVisit.examination.date).date + "-" + formattedSlot(executedVisit.examination.date).time}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
+      filename: `examination-${executedVisit.examination.id}.pdf`,
+      image: { type: "jpeg" as const, quality: 0.98 },
       html2canvas: { scale: 2 },
-      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" as const },
     };
     html2pdf().from(element).set(opt).save();
   }

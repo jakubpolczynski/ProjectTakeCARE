@@ -111,6 +111,9 @@ namespace TakeCare.Database.Migrations
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
 
+                    b.Property<byte[]>("PdfContent")
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<string>("Result")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -128,7 +131,8 @@ namespace TakeCare.Database.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.HasIndex("VisitId");
+                    b.HasIndex("VisitId")
+                        .IsUnique();
 
                     b.ToTable("ExaminationTable");
                 });

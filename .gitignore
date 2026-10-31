@@ -360,3 +360,18 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Local credentials and incident-response material
+.env
+.env.*
+!.env.example
+!**/.env.example
+**/appsettings.Local.json
+**/appsettings.*.Local.json
+**/secrets.json
+**/*.pfx
+**/*.p12
+**/*.key
+**/*.pem
+security-private/
+TestResults/

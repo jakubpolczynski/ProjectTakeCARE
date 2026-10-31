@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TakeCare.Application.Interfaces;
 using TakeCare.Application.Models;
 using TakeCare.Database.Data;
@@ -37,14 +37,14 @@ namespace TakeCare.Application.Services
 			return patientExists != null;
 		}
 
-		public async Task<PatientDto[]> GetPatients(string email)
+		public async Task<PatientDto[]> GetPatients(int doctorUserId)
 		{
-			if (email == null)
+			if (doctorUserId <= 0)
 			{
 				throw new ArgumentException("Invalid doctor specified.");
 			}
 
-			var doctor = await _dbSetDoctor.FirstOrDefaultAsync(d => d.Email == email);
+			var doctor = await _dbSetDoctor.FirstOrDefaultAsync(d => d.UserId == doctorUserId);
 			if (doctor == null)
 			{
 				throw new InvalidOperationException("Doctor not found.");

@@ -1,206 +1,96 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TakeCare.Application.Interfaces;
 using TakeCare.Application.Models;
+using TakeCare.Security;
 
-namespace TakeCare.Controllers
+namespace TakeCare.Controllers;
+
+[ApiController]
+[Authorize]
+[Route("api/[controller]")]
+public sealed class VisitController(IVisitService visits, ResourceAccess access) : ControllerBase
 {
-	[ApiController]
-	[Route("/api/[controller]")]
-	public class VisitController : Controller
-	{
-		private readonly IVisitService? _visitService;
+    [HttpPost("FindAvailableVisits")]
+    [Authorize(Roles = "Patient,Doctor,Receptionist")]
+    public async Task<IActionResult> FindAvailableVisits(FindDateDto findDate)
+    {
+        if (string.IsNullOrWhiteSpace(findDate.Specialization) || findDate.Date == default) return BadRequest();
+        return Ok(await visits.FindAvailableDate(findDate.FirstName, findDate.LastName, findDate.Specialization, findDate.Date));
+    }
 
-		public VisitController(IVisitService visitService)
-		{
-			_visitService = visitService;
-		}
+    [HttpPost("BookVisit")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> BookVisit(VisitDto visitDto)
+    {
+        var email = await access.PatientEmail(User);
+        if (email is null || visitDto.PatientEmail != email || visitDto.IsVisitExecuted) return Forbid();
+        visitDto.PatientEmail = email;
+        visitDto.IsVisitExecuted = false;
+        await visits.BookVisit(visitDto, ResourceAccess.UserId(User));
+        return Ok(new { message = "Visit booked." });
+    }
 
-		[HttpPost("FindAvailableVisits")]
-		public async Task<IActionResult> FindAvailableVisits(FindDateDto findDate)
-		{
-			var firstName = findDate.FirstName;
-			var lastName = findDate.LastName;
-			var specialization = findDate.Specialization;
-			var date = findDate.Date;
+    [HttpPost("BookVisitAsReceptionist")]
+    [Authorize(Roles = "Receptionist")]
+    public async Task<IActionResult> BookVisitAsReceptionist(VisitDto visitDto)
+    {
+        if (visitDto.IsVisitExecuted) return BadRequest();
+        visitDto.IsVisitExecuted = false;
+        await visits.BookVisitAsReceptionist(visitDto);
+        return Ok(new { message = "Visit booked." });
+    }
 
-			if (string.IsNullOrWhiteSpace(specialization) || date == default)
-			{
-				return BadRequest("Invalid input parameters.");
-			}
+    [HttpGet("GetPatientVisits")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> GetPatientVisits(string? patientEmail)
+    {
+        var email = await access.PatientEmail(User);
+        if (email is null || (patientEmail is not null && patientEmail != email)) return Forbid();
+        return Ok(await visits.GetPatientVisits(ResourceAccess.UserId(User)));
+    }
 
-			try
-			{
-				var availableVisits = await _visitService!.FindAvailableDate(firstName, lastName, specialization, date);
-				return Ok(availableVisits);
-			}
-			catch (ArgumentException ex)
-			{
-				return NotFound(ex.Message);
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, $"Internal server error: {ex.Message}");
-			}
-		}
+    [HttpGet("GetDoctorVisits")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> GetDoctorVisits(string? doctorEmail)
+    {
+        var email = await access.DoctorEmail(User);
+        if (email is null || (doctorEmail is not null && doctorEmail != email)) return Forbid();
+        return Ok(await visits.GetDoctorVisits(ResourceAccess.UserId(User)));
+    }
 
-		[HttpPost("BookVisit")]
-		public async Task<IActionResult> BookVisit(VisitDto visitDto)
-		{
-			if (visitDto == null)
-			{
-				return BadRequest("Visit data is required.");
-			}
+    [HttpPost("DeleteBookedVisit")]
+    [Authorize(Roles = "Patient,Doctor,Receptionist")]
+    public async Task<IActionResult> DeleteBookedVisit(VisitDto visit)
+    {
+        if (!await visits.DeleteBookedVisit(visit, ResourceAccess.UserId(User), User.FindFirst("role")?.Value ?? ""))
+            return NotFound();
+        return Ok(new { message = "Visit cancelled." });
+    }
 
-			if (string.IsNullOrWhiteSpace(visitDto.DoctorEmail) ||
-				string.IsNullOrWhiteSpace(visitDto.PatientEmail) ||
-				visitDto.Slot == default)
-			{
-				return BadRequest("Invalid input parameters.");
-			}
+    [HttpGet("GetVisit")]
+    [Authorize(Roles = "Patient,Doctor")]
+    public async Task<IActionResult> GetVisit(int id)
+    {
+        if (!await access.CanReadVisit(User, id)) return NotFound();
+        return Ok(await visits.GetVisit(id));
+    }
 
-			try
-			{
-				await _visitService!.BookVisit(visitDto);
-				return Ok("Visit booked successfully.");
-			}
-			catch (ArgumentException ex)
-			{
-				return NotFound(ex.Message);
-			}
-			catch (InvalidOperationException ex)
-			{
-				return BadRequest(ex.Message);
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, $"Internal server error: {ex.Message}");
-			}
-		}
+    [HttpGet("GetPatientExecutedVisits")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> GetPatientExecutedVisits(string? patientEmail)
+    {
+        var email = await access.PatientEmail(User);
+        if (email is null || (patientEmail is not null && patientEmail != email)) return Forbid();
+        return Ok(await visits.GetPatientExecutedVisits(ResourceAccess.UserId(User)));
+    }
 
-		[HttpPost("BookVisitAsReceptionist")]
-		public async Task<IActionResult> BookVisitAsReceptionist(VisitDto visitDto)
-		{
-			if (visitDto == null)
-			{
-				return BadRequest("Visit data is required.");
-			}
-
-			if (string.IsNullOrWhiteSpace(visitDto.DoctorEmail) ||
-				string.IsNullOrWhiteSpace(visitDto.PatientPesel) ||
-				visitDto.Slot == default)
-			{
-				return BadRequest("Invalid input parameters.");
-			}
-
-			try
-			{
-				await _visitService!.BookVisitAsReceptionist(visitDto);
-				return Ok("Visit booked successfully.");
-			}
-			catch (ArgumentException ex)
-			{
-				return NotFound(ex.Message);
-			}
-			catch (InvalidOperationException ex)
-			{
-				return BadRequest(ex.Message);
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, $"Internal server error: {ex.Message}");
-			}
-		}
-
-		[HttpGet("GetPatientVisits")]
-		public async Task<IActionResult> GetPatientVisits(string patientEmail)
-		{
-			if (string.IsNullOrWhiteSpace(patientEmail))
-			{
-				return BadRequest("Patient email is required.");
-			}
-
-			try
-			{
-				var patientVisits = await _visitService!.GetPatientVisits(patientEmail);
-				return Ok(patientVisits);
-			}
-			catch (ArgumentException ex)
-			{
-				return NotFound(ex.Message);
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, $"Internal server error: {ex.Message}");
-			}
-		}
-
-		[HttpGet("GetDoctorVisits")]
-		public async Task<IActionResult> GetDoctorVisits(string doctorEmail)
-		{
-			if (string.IsNullOrWhiteSpace(doctorEmail))
-			{
-				return BadRequest("Doctor email is required.");
-			}
-
-			try
-			{
-				var doctorVisits = await _visitService!.GetDoctorVisits(doctorEmail);
-				return Ok(doctorVisits);
-			}
-			catch (ArgumentException ex)
-			{
-				return NotFound(ex.Message);
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, $"Internal server error: {ex.Message}");
-			}
-		}
-
-		[HttpPost("DeleteBookedVisit")]
-		public async Task<IActionResult> DeleteBookedVisit(VisitDto visit)
-		{
-			if(visit == null)
-			{
-				return BadRequest("Visit data is required.");
-			}
-
-			try
-			{
-				await _visitService!.DeleteBookedVisit(visit);
-				return Ok("Visit deleted successfully.");
-			}
-			catch (ArgumentException ex)
-			{
-				return NotFound(ex.Message);
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, $"Internal server error: {ex.Message}");
-			}
-		}
-
-		[HttpGet("GetVisit")]
-		public async Task<VisitDto> GetVisit(int id)
-		{
-			if(id == 0)
-			{
-				throw new ArgumentNullException(nameof(id));
-			}
-
-			return await _visitService!.GetVisit(id);
-		}
-
-		[HttpGet("GetPatientExecutedVisits")]
-		public async Task<List<VisitDto>> GetPatientExecutedVisits(string patientEmail)
-		{
-			return await _visitService!.GetPatientExecutedVisits(patientEmail);
-		}
-
-		[HttpGet("GetDoctorExecutedVisits")]
-		public async Task<List<VisitDto>> GetDoctorExecutedVisits(string doctorEmail)
-		{
-			return await _visitService!.GetDoctorExecutedVisits(doctorEmail);
-		}
-	}
+    [HttpGet("GetDoctorExecutedVisits")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> GetDoctorExecutedVisits(string? doctorEmail)
+    {
+        var email = await access.DoctorEmail(User);
+        if (email is null || (doctorEmail is not null && doctorEmail != email)) return Forbid();
+        return Ok(await visits.GetDoctorExecutedVisits(ResourceAccess.UserId(User)));
+    }
 }

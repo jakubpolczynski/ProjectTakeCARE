@@ -1,301 +1,136 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TakeCare.Application.Interfaces;
-using TakeCare.Database.Entity;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using TakeCare.Application.Models;
+using TakeCare.Database.Data;
+using TakeCare.Database.Entity;
+using TakeCare.Security;
 
-namespace TakeCare.Controllers
+namespace TakeCare.Controllers;
+
+[ApiController]
+[Authorize]
+[Route("api/[controller]")]
+public sealed class UserController(TakeCareDbContext database) : ControllerBase
 {
-    [ApiController]
-	[Route("/api/[controller]")]
-    public class UserController : Controller
+    private static bool SafePassword(string value) => Encoding.UTF8.GetByteCount(value) is >= 8 and <= 72;
+
+    [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("login")]
+    [HttpPost("AddDoctor")]
+    public async Task<IActionResult> AddDoctor(DoctorDto doctor)
     {
-		private readonly IGenericService<User>? _userGenericService;
-		private readonly IGenericService<Doctor>? _doctorGenericService;
-		private readonly IGenericService<Patient>? _patientGenericService;
-		private readonly IGenericService<Address>? _addressGenericService;
-		private readonly IGenericService<Receptionist>? _receptionistGenericService;
-		private readonly IUserService? _userService;
-		private readonly IPatientService? _patientService;
-
-		public UserController(
-			IGenericService<User> userGenericService,
-			IGenericService<Doctor> doctorGenericService,
-			IGenericService<Patient> patientGenericService,
-			IGenericService<Address> addressGenericService,
-			IGenericService<Receptionist> receptionistGenericService,
-			IUserService userService,
-			IPatientService patientService
-			)
+        if (!SafePassword(doctor.Password)) return BadRequest(new { error = "Invalid password length." });
+        if (await database.UserTable!.AnyAsync(u => u.Email == doctor.Email)) return Conflict(new { error = "Account cannot be created." });
+        var entity = new Doctor
         {
-	        _userGenericService = userGenericService;
-	        _doctorGenericService = doctorGenericService;
-	        _patientGenericService = patientGenericService;
-	        _addressGenericService= addressGenericService;
-			_receptionistGenericService = receptionistGenericService;
-			_userService = userService;
-			_patientService = patientService;
+            FirstName = doctor.FirstName, LastName = doctor.LastName, Specialization = doctor.Specialization,
+            Phone = doctor.Phone, Email = doctor.Email,
+            User = new User { Email = doctor.Email, Password = BCrypt.Net.BCrypt.HashPassword(doctor.Password, 12), Role = "Doctor" }
+        };
+        database.DoctorTable!.Add(entity);
+        await database.SaveChangesAsync();
+        return StatusCode(201, new { id = entity.User.Id });
+    }
 
-		}
-        [HttpPost("AddDoctor")]
-        public async Task<IActionResult> AddDoctor(DoctorDto doctor)
+    [AllowAnonymous]
+    [EnableRateLimiting("login")]
+    [HttpPost("AddPatient")]
+    public async Task<IActionResult> AddPatient(PatientDto patient)
+    {
+        if (!SafePassword(patient.Password)) return BadRequest(new { error = "Invalid password length." });
+        if (await database.UserTable!.AnyAsync(u => u.Email == patient.Email) ||
+            await database.PatientTable!.AnyAsync(p => p.Pesel == patient.Pesel))
+            return Conflict(new { error = "Account cannot be created." });
+        var entity = new Patient
         {
-            if (!ModelState.IsValid)
-            {
-				return BadRequest("ModelState is not valid");
-            }
-            if (doctor.Role != "Doctor" || _userGenericService == null || _doctorGenericService == null)
-            {
-                return BadRequest("Invalid data:"+ doctor.Role);
-            }
+            Pesel = patient.Pesel, FirstName = patient.FirstName, LastName = patient.LastName,
+            Email = patient.Email, Phone = patient.Phone,
+            Address = new Address { City = patient.City, Street = patient.Street, PostalCode = patient.PostalCode },
+            User = new User { Email = patient.Email, Password = BCrypt.Net.BCrypt.HashPassword(patient.Password, 12), Role = "Patient" }
+        };
+        database.PatientTable!.Add(entity);
+        await database.SaveChangesAsync();
+        return StatusCode(201, new { id = entity.User.Id });
+    }
 
-            var userEntity = new User
-            {
-	            Email = doctor.Email,
-	            Password = BCrypt.Net.BCrypt.HashPassword(doctor.Password),
-	            Role = doctor.Role
-            };
-
-			var doctorEntity = new Doctor
-            {
-				FirstName = doctor.FirstName,
-				LastName = doctor.LastName,
-				Specialization = doctor.Specialization,
-				Phone = doctor.Phone,
-				Email = doctor.Email,
-				User = userEntity
-			};
-
-			var userExists = await _userService!.CheckIfUserExistsAsync(userEntity.Email);
-
-			if(userExists)
-			{
-				return BadRequest("User already exists");
-			}
-			else
-			{
-				await _userGenericService.CreateAsync(userEntity);
-				await _doctorGenericService.CreateAsync(doctorEntity);
-				return Created("Success", doctor);
-
-			}
-		}
-
-        [HttpPost("AddPatient")]
-		public async Task<IActionResult> AddPatient(PatientDto patient)
+    [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("login")]
+    [HttpPost("AddReceptionist")]
+    public async Task<IActionResult> AddReceptionist(ReceptionistDto receptionist)
+    {
+        if (!SafePassword(receptionist.Password)) return BadRequest(new { error = "Invalid password length." });
+        if (await database.UserTable!.AnyAsync(u => u.Email == receptionist.Email)) return Conflict(new { error = "Account cannot be created." });
+        var entity = new Receptionist
         {
-	        if (!ModelState.IsValid || patient.Role != "Patient" || _userGenericService == null || _patientGenericService == null || _addressGenericService == null)
-	        {
-		        return BadRequest();
-	        }
+            FirstName = receptionist.FirstName, LastName = receptionist.LastName, Email = receptionist.Email,
+            User = new User { Email = receptionist.Email, Password = BCrypt.Net.BCrypt.HashPassword(receptionist.Password, 12), Role = "Receptionist" }
+        };
+        database.ReceptionistTable!.Add(entity);
+        await database.SaveChangesAsync();
+        return StatusCode(201, new { id = entity.User.Id });
+    }
 
-	        var userEntity = new User
-	        {
-		        Email = patient.Email,
-	            Password = BCrypt.Net.BCrypt.HashPassword(patient.Password),
-				Role = patient.Role
-	        };
+    [Authorize(Roles = "Admin")]
+    [HttpDelete]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        if (id == ResourceAccess.UserId(User)) return BadRequest(new { error = "Self-deletion is disabled." });
+        var user = await database.UserTable!.FindAsync(id);
+        if (user is null) return NotFound();
+        database.UserTable.Remove(user);
+        await database.SaveChangesAsync();
+        return NoContent();
+    }
 
-            var addressEntity = new Address
-            {
-	            City = patient.City,
-	            Street = patient.Street,
-	            PostalCode = patient.PostalCode
-			};
+    [HttpGet]
+    public async Task<IActionResult> GetUser(int id)
+    {
+        if (id != ResourceAccess.UserId(User) && !User.IsInRole("Admin")) return Forbid();
+        var user = await database.UserTable!.AsNoTracking().Where(u => u.Id == id)
+            .Select(u => new { u.Id, u.Email, u.Role }).SingleOrDefaultAsync();
+        return user is null ? NotFound() : Ok(user);
+    }
 
-            var patientEntity = new Patient
-            {
-	            Pesel = patient.Pesel,
-	            FirstName = patient.FirstName,
-	            LastName = patient.LastName,
-	            Email = patient.Email,
-	            Phone = patient.Phone,
-	            Address = addressEntity,
-	            User = userEntity
-            };
+    // Only the authenticated user's profile may be updated.
+    // Email, role, identifiers and password from the legacy DTO are deliberately not assigned.
+    [Authorize(Roles = "Patient")]
+    [HttpPost("UpdatePatient")]
+    public async Task<IActionResult> UpdatePatient(PatientDto patient)
+    {
+        var id = ResourceAccess.UserId(User);
+        var entity = await database.PatientTable!.Include(p => p.Address).SingleOrDefaultAsync(p => p.UserId == id);
+        if (entity?.Address is null) return NotFound();
+        entity.FirstName = patient.FirstName; entity.LastName = patient.LastName; entity.Phone = patient.Phone;
+        entity.Address.City = patient.City; entity.Address.Street = patient.Street; entity.Address.PostalCode = patient.PostalCode;
+        await database.SaveChangesAsync();
+        return NoContent();
+    }
 
-			var userExists = await _userService!.CheckIfUserExistsAsync(userEntity.Email);
-			var patientExists = await _patientService!.CheckIfPatientExistsAsync(patient.Pesel);
+    [Authorize(Roles = "Doctor")]
+    [HttpPost("UpdateDoctor")]
+    public async Task<IActionResult> UpdateDoctor(DoctorDto doctor)
+    {
+        var id = ResourceAccess.UserId(User);
+        var entity = await database.DoctorTable!.SingleOrDefaultAsync(d => d.UserId == id);
+        if (entity is null) return NotFound();
+        entity.FirstName = doctor.FirstName; entity.LastName = doctor.LastName; entity.Phone = doctor.Phone;
+        entity.Specialization = doctor.Specialization;
+        await database.SaveChangesAsync();
+        return NoContent();
+    }
 
-			if (userExists || patientExists)
-			{
-				return BadRequest("You already have an account");
-			}
-			else
-			{
-				await _userGenericService.CreateAsync(userEntity);
-				await _addressGenericService.CreateAsync(addressEntity);
-				await _patientGenericService.CreateAsync(patientEntity);
-
-				return Created("Success", patient);
-			}
-
-        }
-		[HttpPost("AddReceptionist")]
-		public async Task<IActionResult> AddReceptionist(ReceptionistDto receptionist)
-		{
-			if (!ModelState.IsValid || receptionist.Role != "Receptionist" || _userGenericService == null || _receptionistGenericService == null)
-			{
-				return BadRequest();
-			}
-
-			var userEntity = new User
-			{
-				Email = receptionist.Email,
-				Password = BCrypt.Net.BCrypt.HashPassword(receptionist.Password),
-				Role = receptionist.Role
-			};
-
-			var receptionistEntity = new Receptionist
-			{
-				FirstName = receptionist.FirstName,
-				LastName = receptionist.LastName,
-				Email = receptionist.Email,
-				User = userEntity
-			};
-
-			var userExists = await _userService!.CheckIfUserExistsAsync(userEntity.Email);
-
-			if (userExists)
-			{
-				return BadRequest("You already have an account");
-			}
-			else
-			{
-				await _userGenericService.CreateAsync(userEntity);
-				await _receptionistGenericService.CreateAsync(receptionistEntity);
-
-				return Created("Success", receptionist);
-			}
-
-		}
-
-		[HttpDelete]
-        public async Task<IActionResult> DeleteUser(int id)
-        {
-	        if (!ModelState.IsValid || _userGenericService == null)
-	        {
-				return BadRequest();
-			}
-
-			await _userGenericService.DeleteAsync(id);
-
-			return Ok();
-		}
-
-        [HttpGet]
-        public async Task<IActionResult> GetUser(int id)
-        {
-	        if (!ModelState.IsValid || _userGenericService == null)
-	        {
-				return BadRequest();
-			}
-
-			var user = await _userGenericService.ReadAsync(id);
-
-
-
-			return Ok(user);
-		}
-
-        [HttpPost("UpdatePatient")]
-        public async Task<IActionResult> UpdatePatient(PatientDto patient)
-        {
-			
-	        if (!ModelState.IsValid || patient.Role != "Patient" || _userGenericService == null || _patientGenericService == null || _addressGenericService == null)
-			{
-				return BadRequest();
-			}
-
-			var userEntity = new User
-	        {
-		        Email = patient.Email,
-		        Password = patient.Password,
-		        Role = patient.Role
-	        };
-
-	        var addressEntity = new Address
-	        {
-		        City = patient.City,
-		        Street = patient.Street,
-		        PostalCode = patient.PostalCode
-	        };
-
-	        var patientEntity = new Patient
-	        {
-		        Pesel = patient.Pesel,
-		        FirstName = patient.FirstName,
-		        LastName = patient.LastName,
-		        Email = patient.Email,
-		        Phone = patient.Phone,
-		        Address = addressEntity,
-		        User = userEntity
-	        };
-
-			await _userGenericService.UpdateAsync(userEntity);
-			await _addressGenericService.UpdateAsync(addressEntity);
-			await _patientGenericService.UpdateAsync(patientEntity);
-
-			return Ok();
-        }
-
-        [HttpPost("UpdateDoctor")]
-        public async Task<IActionResult> UpdateDoctor(DoctorDto doctor)
-        {
-	        if (!ModelState.IsValid || doctor.Role != "Doctor" || _userGenericService == null || _doctorGenericService == null)
-	        {
-		        return BadRequest();
-	        }
-
-	        var userEntity = new User
-	        {
-		        Email = doctor.Email,
-		        Password = doctor.Password,
-		        Role = doctor.Role
-	        };
-
-	        var doctorEntity = new Doctor
-	        {
-		        FirstName = doctor.FirstName,
-		        LastName = doctor.LastName,
-				Specialization = doctor.Specialization,
-		        Phone = doctor.Phone,
-		        Email = doctor.Email,
-		        User = userEntity
-	        };
-
-	        await _userGenericService.UpdateAsync(userEntity);
-	        await _doctorGenericService.UpdateAsync(doctorEntity);
-
-	        return Ok();
-        }
-
-		[HttpPost("UpdateReceptionist")]
-		public async Task<IActionResult> UpdateReceptionist(ReceptionistDto receptionist)
-		{
-			if (!ModelState.IsValid || receptionist.Role != "Receptionist" || _userGenericService == null || _receptionistGenericService == null)
-			{
-				return BadRequest();
-			}
-
-			var userEntity = new User
-			{
-				Email = receptionist.Email,
-				Password = receptionist.Password,
-				Role = receptionist.Role
-			};
-
-			var receptionistEntity = new Receptionist
-			{
-				FirstName = receptionist.FirstName,
-				LastName = receptionist.LastName,
-				Email = receptionist.Email,
-				User = userEntity
-			};
-
-			await _userGenericService.UpdateAsync(userEntity);
-			await _receptionistGenericService.UpdateAsync(receptionistEntity);
-
-			return Ok();
-		}
-	}
+    [Authorize(Roles = "Receptionist")]
+    [HttpPost("UpdateReceptionist")]
+    public async Task<IActionResult> UpdateReceptionist(ReceptionistDto receptionist)
+    {
+        var id = ResourceAccess.UserId(User);
+        var entity = await database.ReceptionistTable!.SingleOrDefaultAsync(r => r.UserId == id);
+        if (entity is null) return NotFound();
+        entity.FirstName = receptionist.FirstName; entity.LastName = receptionist.LastName;
+        await database.SaveChangesAsync();
+        return NoContent();
+    }
 }

@@ -32,7 +32,13 @@
             text="Patients"
           />
         </ul>
+        <span v-if="logoutError" class="text-warning">{{ logoutError }}</span>
         <ul class="nav d-flex justify-content-end">
+          <NavLink
+            v-if="auth && userRole === 'Admin'"
+            link="/createaccount"
+            text="Create staff account"
+          />
           <NavLink
             v-if="!auth"
             link="/login"
@@ -59,7 +65,8 @@
   </header>
 </template>
 <script setup lang="ts">
-  import { computed } from "vue";
+  import { computed, ref } from "vue";
+  import { AxiosError } from "axios";
   import { useRouter } from "vue-router";
   import { useStore } from "vuex";
 
@@ -70,6 +77,7 @@
 
   const router = useRouter();
   const store = useStore();
+  const logoutError = ref("");
   const auth = computed(() => {
     return store.state.authenticated;
   });
@@ -78,13 +86,22 @@
   });
 
   const logout = async () => {
+    logoutError.value = "";
     try {
       await logoutUser();
       store.dispatch("setAuth", false);
       store.dispatch("setUser", "");
+      store.dispatch("setEmail", "");
       await router.push("/login");
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.status === 401) {
+        await store.dispatch("setAuth", false);
+        await store.dispatch("setUser", "");
+        await store.dispatch("setEmail", "");
+        await router.push("/login");
+      } else {
+        logoutError.value = "Could not sign out. Please try again.";
+      }
     }
   };
 </script>

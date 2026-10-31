@@ -1,15 +1,6 @@
 import { LoginDto } from "@/models/LoginDto";
-import axios from "axios";
+import { apiClient } from "./client";
 
-const apiClient = axios.create({
-  baseURL: "http://localhost:5184/api",
-  headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
-  },
-  withCredentials: true,
-});
 
 export const loginUser = async (data: LoginDto) => {
   return await apiClient.post("/Login/Login", data);
