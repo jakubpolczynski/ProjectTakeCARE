@@ -91,10 +91,12 @@
               id="image"
               name="image"
               class="form-control"
+              disabled
               @change="handleImageUpload"
               multiple
               accept=".jpg, .jpeg, .png"
             />
+            <small class="text-muted">Image attachments are currently unavailable.</small>
             <div class="validation-error">{{ errorMessage }}</div>
             <div
               v-if="imagePreviews.length > 0"
@@ -136,7 +138,7 @@
       id="modal1"
       class="modal fade"
     >
-      <SuccessExaminationModal></SuccessExaminationModal>
+      <SuccessExaminationModal :delivery-status="deliveryStatus"></SuccessExaminationModal>
     </div>
     <div
       id="modal2"
@@ -173,6 +175,7 @@
   const visit = ref<VisitDto>();
   const loadingEnded = ref(false);
   const errorMessage = ref("");
+  const deliveryStatus = ref("");
   const examination = ref<ExaminationDto>();
   const executedVisit = ref<ExecutedVisitDto>();
   const previewVisible = ref<boolean>(false);
@@ -276,7 +279,6 @@
       visit: visit.value,
       imagePreviews: base64Images.value,
     };
-    console.log(executedVisit.value);
   };
 
   const preview = handleSubmit(async (values) => {
@@ -292,9 +294,9 @@
 
     fillExecutedVisit();
 
-    const modalBodyElement = document.querySelector("#modal2 .modal-body");
+    const modalBodyElement = document.querySelector<HTMLElement>("#modal2 .modal-body");
     if (modalBodyElement) {
-      const pdfBlob = await html2pdf().from(modalBodyElement).save().outputPdf("blob");
+      const pdfBlob = await html2pdf().from(modalBodyElement).outputPdf("blob");
 
       const formData = new FormData();
       formData.append("file", pdfBlob, `Examination-${examination.value.id}.pdf`);
@@ -322,7 +324,8 @@
       const formData = await createPDF();
 
       if (examination.value && Object.keys(examination.value).length > 0) {
-        await addExamination(examination.value, formData);
+        const response = await addExamination(examination.value, formData);
+        deliveryStatus.value = response.data.emailDelivery || "unknown";
       } else {
         throw new Error("Invalid examination data");
       }
@@ -331,9 +334,9 @@
       showModal();
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
-        errorMessage.value = error.response.data;
+        errorMessage.value = typeof error.response.data === "string"
+          ? error.response.data : error.response.data?.error || "The examination could not be saved.";
       } else {
-        console.error(error);
         errorMessage.value = "An unexpected error occurred";
       }
     }

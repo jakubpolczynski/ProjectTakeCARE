@@ -10,6 +10,7 @@
         Patient
       </button>
       <button
+        v-if="store.state.user === 'Admin'"
         @click="createDoctor"
         class="btn btn-primary me-3 col-2"
         :class="[isDoctorCreating ? 'disabled btn-secondary' : '']"
@@ -17,6 +18,7 @@
         Doctor
       </button>
       <button
+        v-if="store.state.user === 'Admin'"
         @click="createReceptionist"
         class="btn btn-primary me-3 col-2"
         :class="[isReceptionistCreating ? 'disabled btn-secondary' : '']"
@@ -319,6 +321,7 @@
 
 <script setup lang="ts">
   import { ref, computed } from "vue";
+  import { store } from "@/store/store";
   import * as yup from "yup";
   import { useForm } from "vee-validate";
   import { useRouter } from "vue-router";
@@ -336,7 +339,7 @@
   const router = useRouter();
 
   const isDoctorCreating = ref(false);
-  const isPatientCreating = ref(false);
+  const isPatientCreating = ref(true);
   const isReceptionistCreating = ref(false);
   const errorMessage = ref("");
   const specializationError = ref("");
@@ -442,6 +445,7 @@
     } else if (isReceptionistCreating.value) {
       return receptionistSchema;
     }
+    return patientSchema;
   });
 
   const { errors, handleSubmit, defineField, resetForm } = useForm({

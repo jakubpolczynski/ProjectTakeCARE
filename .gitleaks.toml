@@ -1,0 +1,11 @@
+title = "TakeCARE secret detection"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "takecare-config-credential"
+description = "Non-empty credential field in appsettings JSON"
+path = '''(?i)(^|/)appsettings[^/]*\.json$'''
+regex = '''(?i)"(?:Key|Secret|Public|SigningKeyBase64)"\s*:\s*"([^"\r\n]{8,})"'''
+secretGroup = 1

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { store } from "@/store/store";
+import { getUser } from "@/api/loginApi";
 import HomeView from "@/views/HomeView.vue";
 import FormsView from "@/views/FormsView.vue";
 import CreateAccountView from "@/views/CreateAccountView.vue";
@@ -83,24 +84,34 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
   const requiresDoctor = to.matched.some((record) => record.meta.requiresDoctor);
   const requiresPatient = to.matched.some((record) => record.meta.requiresPatient);
   const requiresReceptionist = to.matched.some((record) => record.meta.requiresReceptionist);
-  const isAuthenticated = store.state.authenticated;
-
-  if (requiresAuth && !isAuthenticated) {
-    next({ name: "login" });
-  } else if (requiresDoctor && store.state.user !== "Doctor") {
-    next({ name: "home" });
-  } else if (requiresPatient && store.state.user !== "Patient") {
-    next({ name: "home" });
-  } else if (requiresReceptionist && store.state.user !== "Receptionist") {
-    next({ name: "home" });
-  } else {
-    next();
+  // The server validates the cookie, including expiry and current role, on every navigation.
+  try {
+    const { data } = await getUser();
+    if (!data || typeof data.role !== "string" || typeof data.email !== "string") throw new Error("Invalid session");
+    await store.dispatch("setAuth", true);
+    await store.dispatch("setUser", data.role);
+    await store.dispatch("setEmail", data.email);
+  } catch {
+    await store.dispatch("setAuth", false);
+    await store.dispatch("setUser", "");
+    await store.dispatch("setEmail", "");
   }
+
+  if (requiresAuth && !store.state.authenticated) {
+    return { name: "login" };
+  } else if (requiresDoctor && store.state.user !== "Doctor") {
+    return { name: "home" };
+  } else if (requiresPatient && store.state.user !== "Patient") {
+    return { name: "home" };
+  } else if (requiresReceptionist && store.state.user !== "Receptionist") {
+    return { name: "home" };
+  }
+  return true;
 });
 
 export default router;

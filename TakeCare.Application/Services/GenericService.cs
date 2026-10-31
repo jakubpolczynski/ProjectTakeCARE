@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TakeCare.Application.Interfaces;
 using TakeCare.Application.Models;
-using Couchbase.Core.Exceptions;
 
 namespace TakeCare.Application.Services
 {
@@ -11,7 +10,7 @@ namespace TakeCare.Application.Services
         private readonly DbSet<TEntity> _dbSet;
         public GenericService(TContext context)
         {
-            _context = context ?? throw new InvalidArgumentException("Invalid context");
+            _context = context ?? throw new ArgumentNullException(nameof(context));
             _dbSet = _context.Set<TEntity>();
         }
 

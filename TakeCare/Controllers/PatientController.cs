@@ -1,48 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TakeCare.Application.Interfaces;
-using TakeCare.Application.Models;
-using TakeCare.Application.Services;
+using TakeCare.Security;
 
-namespace TakeCare.Controllers
+namespace TakeCare.Controllers;
+
+[ApiController]
+[Authorize(Roles = "Doctor")]
+[Route("api/[controller]")]
+public sealed class PatientController(IPatientService patients, ResourceAccess access) : ControllerBase
 {
-	[ApiController]
-	[Route("api/[controller]")]
-	public class PatientController : Controller
-	{
-		private readonly IPatientService? _patientService;
-
-		public PatientController(IPatientService patientService)
-		{
-			_patientService = patientService;
-		}
-
-		[HttpGet("GetDoctorPatients")]
-		public async Task<IActionResult> GetDoctorPatients([FromQuery] string email)
-		{
-			if (string.IsNullOrWhiteSpace(email))
-			{
-				return BadRequest("Email is required.");
-			}
-
-			try
-			{
-				var patients = await _patientService!.GetPatients(email);
-				if (patients == null || patients.Length == 0)
-				{
-					return NotFound("No patients found for the specified doctor.");
-				}
-
-				return Ok(patients);
-			}
-			catch (ArgumentException ex)
-			{
-				return NotFound(ex.Message);
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, $"Internal server error: {ex.Message}");
-			}
-		}
-
-	}
+    [HttpGet("GetDoctorPatients")]
+    public async Task<IActionResult> GetDoctorPatients(string? email)
+    {
+        var ownEmail = await access.DoctorEmail(User);
+        if (ownEmail is null || (email is not null && email != ownEmail)) return Forbid();
+        return Ok(await patients.GetPatients(ResourceAccess.UserId(User)));
+    }
 }

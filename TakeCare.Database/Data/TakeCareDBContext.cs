@@ -17,5 +17,11 @@ namespace TakeCare.Database.Data
 		public DbSet<Visit>? VisitTable { get; set; }
 		public DbSet<User>? UserTable { get; set; }
 		public DbSet<Receptionist>? ReceptionistTable { get; set; }
+
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		{
+			base.OnModelCreating(modelBuilder);
+			modelBuilder.Entity<Examination>().HasIndex(e => e.VisitId).IsUnique();
+		}
 	}
 }

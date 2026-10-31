@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check build-only",
+    "build": "npm run type-check && npm run build-only",
     "preview": "vite preview",
     "test": "vitest",
     "build-only": "vite build",
-    "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
+    "type-check": "vue-tsc --noEmit -p tsconfig.json",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
     "prettier-verify": "prettier ./src --check --config ./.prettierrc.json",
@@ -18,7 +18,7 @@
   "dependencies": {
     "axios": "^1.6.8",
     "bootstrap": "^5.3.3",
-    "html2pdf.js": "^0.10.2",
+    "html2pdf.js": "0.14.0",
     "pinia": "^2.1.7",
     "sweetalert2": "^11.6.13",
     "vee-validate": "^4.12.7",
@@ -32,18 +32,30 @@
     "@rushstack/eslint-patch": "^1.10.2",
     "@types/bootstrap": "^5.2.10",
     "@types/jsdom": "^21.1.6",
-    "@types/node": "^20.12.8",
-    "@vitejs/plugin-vue": "^5.0.4",
-    "@vitest/coverage-v8": "^1.6.0",
+    "@types/node": "^24.0.0",
+    "@vitejs/plugin-vue": "6.0.10",
+    "@vitest/coverage-v8": "5.0.5",
     "@vue/test-utils": "^2.4.5",
     "@vue/tsconfig": "^0.5.1",
     "eslint": "^9.2.0",
     "jsdom": "^24.0.0",
-    "npm-run-all": "^4.1.5",
     "prettier": "^3.2.5",
-    "vite": "^5.2.11",
+    "typescript": "^5.9.3",
+    "vite": "8.3.5",
     "vite-plugin-mkcert": "^1.17.5",
-    "vitest": "^1.6.0",
-    "vue-tsc": "^2.0.16"
+    "vitest": "5.0.5",
+    "vue-tsc": "^3.3.14"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "type": "module",
+  "overrides": {
+    "editorconfig": {
+      "minimatch": "^11.0.3"
+    },
+    "js-beautify": {
+      "glob": "^14.0.3"
+    }
   }
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TakeCare.Application.Interfaces;
 using TakeCare.Database.Data;
 using TakeCare.Application.Models;
@@ -66,7 +66,7 @@ namespace TakeCare.Application.Services
 			};
 		}
 
-		public async Task BookVisit(VisitDto visit)
+		public async Task BookVisit(VisitDto visit, int patientUserId)
 		{
 			if (visit == null)
 			{
@@ -84,7 +84,7 @@ namespace TakeCare.Application.Services
 			}
 
 			var patient = await _context.PatientTable!
-				.FirstOrDefaultAsync(p => p.Email == visit.PatientEmail);
+				.FirstOrDefaultAsync(p => p.UserId == patientUserId);
 
 			if (patient == null)
 			{
@@ -142,9 +142,9 @@ namespace TakeCare.Application.Services
 			await _context.SaveChangesAsync();
 		}
 
-		public async Task<List<VisitDto>> GetPatientVisits(string patientEmail)
+		public async Task<List<VisitDto>> GetPatientVisits(int patientUserId)
 		{
-			if (string.IsNullOrWhiteSpace(patientEmail))
+			if (patientUserId <= 0)
 			{
 				throw new ArgumentException("Patient email is required.");
 			}
@@ -152,7 +152,7 @@ namespace TakeCare.Application.Services
 			var patient = await _context.PatientTable!
 				.Include(p => p.Visits!)
 				.ThenInclude(v => v.Doctor)
-				.FirstOrDefaultAsync(p => p.Email == patientEmail) ?? throw new ArgumentException("Patient not found.");
+				.FirstOrDefaultAsync(p => p.UserId == patientUserId) ?? throw new ArgumentException("Patient not found.");
 
 			var visitDtos = patient.Visits?.Select(v => new VisitDto
 			{
@@ -171,9 +171,9 @@ namespace TakeCare.Application.Services
 
 			return visitDtos ?? new List<VisitDto>();
 		}
-		public async Task<List<VisitDto>> GetDoctorVisits(string doctorEmail)
+		public async Task<List<VisitDto>> GetDoctorVisits(int doctorUserId)
 		{
-			if (string.IsNullOrWhiteSpace(doctorEmail))
+			if (doctorUserId <= 0)
 			{
 				throw new ArgumentException("Doctor email is required.");
 			}
@@ -181,7 +181,7 @@ namespace TakeCare.Application.Services
 			var doctor = await _context.DoctorTable!
 				.Include(p => p.Visits!)
 				.ThenInclude(v => v.Patient)
-				.FirstOrDefaultAsync(p => p.Email == doctorEmail) ?? throw new ArgumentException("Doctor not found.");
+				.FirstOrDefaultAsync(p => p.UserId == doctorUserId) ?? throw new ArgumentException("Doctor not found.");
 
 			var visitDtos = doctor.Visits?.Select(v => new VisitDto
 			{
@@ -200,25 +200,18 @@ namespace TakeCare.Application.Services
 
 			return visitDtos ?? new List<VisitDto>();
 		}
-		public async Task DeleteBookedVisit(VisitDto visit)
-		{
-			if (visit == null)
-			{
-				throw new ArgumentNullException(nameof(visit));
-			}
-
-			var doctor = await _context.DoctorTable!.FirstOrDefaultAsync(d => d.Email == visit.DoctorEmail) ?? throw new ArgumentException("Doctor not found");
-
-			var patient = await _context.PatientTable!.FirstOrDefaultAsync(p => p.Email == visit.PatientEmail) ?? throw new ArgumentException("Patient not found");
-
-			var bookedVisit = await _context.VisitTable!
-				.FirstOrDefaultAsync(
-					v => v.DoctorId == doctor!.Id && v.Date == visit.Slot && v.PatientId == patient!.Id
-				) ?? throw new ArgumentException("Booked visit not found.");
-
-			_context.VisitTable!.Remove(bookedVisit);
-			await _context.SaveChangesAsync();
-		}
+        public async Task<bool> DeleteBookedVisit(VisitDto visit, int userId, string role)
+        {
+            var booked = await _context.VisitTable!.FirstOrDefaultAsync(v =>
+                v.Doctor!.Email == visit.DoctorEmail && v.Patient!.Email == visit.PatientEmail &&
+                v.Date == visit.Slot && !v.IsVisitExecuted &&
+                ((role == "Patient" && v.Patient.UserId == userId) ||
+                 (role == "Doctor" && v.Doctor.UserId == userId) || role == "Receptionist"));
+            if (booked is null) return false;
+            _context.VisitTable.Remove(booked);
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
 		public async Task<VisitDto> GetVisit(int id)
 		{
@@ -254,9 +247,9 @@ namespace TakeCare.Application.Services
 			return visit;
 		}
 
-		public async Task<List<VisitDto>> GetPatientExecutedVisits(string patientEmail)
+		public async Task<List<VisitDto>> GetPatientExecutedVisits(int patientUserId)
 		{
-			if (string.IsNullOrWhiteSpace(patientEmail))
+			if (patientUserId <= 0)
 			{
 				throw new ArgumentException("Patient email is required.");
 			}
@@ -266,7 +259,7 @@ namespace TakeCare.Application.Services
 				var visits = await _context.VisitTable!
 					.Include(v => v.Patient)
 					.Include(v => v.Doctor)
-					.Where(v => v.IsVisitExecuted == true && v.Patient!.Email == patientEmail)
+					.Where(v => v.IsVisitExecuted == true && v.Patient!.UserId == patientUserId)
 					.ToListAsync();
 
 				var visitDtos = visits.Select(v => new VisitDto
@@ -292,9 +285,9 @@ namespace TakeCare.Application.Services
 			}
 		}
 
-		public async Task<List<VisitDto>> GetDoctorExecutedVisits(string doctorEmail)
+		public async Task<List<VisitDto>> GetDoctorExecutedVisits(int doctorUserId)
 		{
-			if (string.IsNullOrWhiteSpace(doctorEmail))
+			if (doctorUserId <= 0)
 			{
 				throw new ArgumentException("Doctor email is required.");
 			}
@@ -304,7 +297,7 @@ namespace TakeCare.Application.Services
 				var visits = await _context.VisitTable!
 					.Include(v => v.Patient)
 					.Include(v => v.Doctor)
-					.Where(v => v.IsVisitExecuted == true && v.Doctor!.Email == doctorEmail)
+					.Where(v => v.IsVisitExecuted == true && v.Doctor!.UserId == doctorUserId)
 					.ToListAsync();
 
 				var visitDtos = visits.Select(v => new VisitDto

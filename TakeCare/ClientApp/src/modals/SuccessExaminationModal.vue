@@ -16,7 +16,11 @@
         ></button>
       </div>
       <div class="modal-body">
-        <p>Examination saved successfuly</p>
+        <p>Examination saved successfully.</p>
+        <p v-if="deliveryStatus === 'submitted'">The email was submitted to the provider. Delivery is not guaranteed.</p>
+        <p v-else-if="deliveryStatus === 'failed'" class="text-danger">The examination was saved, but the email could not be sent.</p>
+        <p v-else class="text-muted">Email delivery is disabled or unavailable.</p>
+        <p class="text-muted">The generated PDF is saved with the examination.</p>
       </div>
       <div class="modal-footer">
         <button
@@ -34,6 +38,8 @@
 <script setup lang="ts">
   import { ref } from "vue";
   import { useRouter } from "vue-router";
+
+  defineProps<{ deliveryStatus: string }>();
 
   const router = useRouter();
   const modalVisible = ref<boolean>();

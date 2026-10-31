@@ -18,6 +18,8 @@ namespace TakeCare.Database.Entity
 		public string Type { get; set; } = string.Empty;
 		[Required]
 		public string Result { get; set; } = string.Empty;
+		// Null for historical examinations created before document storage was introduced.
+		public byte[]? PdfContent { get; set; }
 		public virtual ICollection<ExaminationImage> Images { get; set; } = new List<ExaminationImage>();
 		[Required]
 		[ForeignKey("Patient")]

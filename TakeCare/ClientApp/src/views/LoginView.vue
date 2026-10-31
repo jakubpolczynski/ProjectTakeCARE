@@ -100,7 +100,8 @@
       await router.push("/");
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
-        errorMessage.value = error.response.data;
+        errorMessage.value = typeof error.response.data === "string"
+          ? error.response.data : error.response.data?.error || "Unable to sign in.";
       } else {
         errorMessage.value = "An unexpected error occurred";
       }
